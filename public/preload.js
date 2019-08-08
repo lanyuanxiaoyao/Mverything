@@ -212,7 +212,9 @@ var r=n(20),i=n(21),o=n(8);function s(){return u.TYPED_ARRAY_SUPPORT?2147483647:
         spotlight(name, onlyName, dir, [
             "kMDItemContentType",
             "kMDItemFSName",
-            "kMDItemFSSize"
+            "kMDItemFSSize",
+            "kMDItemFSCreationDate",
+            "kMDItemFSContentChangeDate"
           ])
           .on("data", data => {
             tempData.push(data);

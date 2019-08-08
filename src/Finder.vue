@@ -2,7 +2,7 @@
   <div id="finder">
     <vxe-table
       :context-menu="{body: {options: menus}}"
-      :height="550"
+      :height="tableHeight"
       :keyboard-config="{isArrow: true}"
       :loading="loading"
       :optimization="{scrollY: {gt: 1000, oSize: 10, rSize: 100}}"
@@ -31,24 +31,55 @@
       <vxe-table-column field="path">
         <template v-slot="{ row }">
           <span class="path">{{ row.path }}</span>
+          <span>{{ row.size }}</span>
         </template>
       </vxe-table-column>
     </vxe-table>
-    <div
-      :style="'top: ' + footerPosition + 'px;position: absolute;width: 100%'"
-      id="footer"
-    >
+    <div id="footer">
       <el-row
         align="middle"
         type="flex"
       >
-        <el-col :span="20">
+        <el-col
+          :span="4"
+          style="padding-left: 15px"
+        >
           <el-button
-            @click="drawerOpen = true"
+            @click="settingDrawer.drawerOpen = true"
             class="setting-button"
             icon="el-icon-s-tools"
             type="text"
           >设置</el-button>
+          <el-button
+            @click="tipDrawer.drawerOpen = true"
+            class="tip-button"
+            icon="el-icon-info"
+            type="text"
+          >提示</el-button>
+        </el-col>
+        <el-col :span="1"></el-col>
+        <el-col :span="15">
+          <el-radio-group
+            @change="sortChangeEvent"
+            class="radio-group"
+            size="mini"
+            v-model="sort.field"
+          >
+            <el-radio-button label="name">名称</el-radio-button>
+            <el-radio-button label="size">大小</el-radio-button>
+            <el-radio-button label="createDate">创建时间</el-radio-button>
+            <el-radio-button label="updateDate">更新时间</el-radio-button>
+          </el-radio-group>
+          <span class="gap"></span>
+          <el-radio-group
+            @change="sortChangeEvent"
+            class="radio-group"
+            size="mini"
+            v-model="sort.type"
+          >
+            <el-radio-button label="-1">上</el-radio-button>
+            <el-radio-button label="1">下</el-radio-button>
+          </el-radio-group>
         </el-col>
         <el-col :span="4">
           <div id="total">共搜索到 {{ tableData.length }} 条</div>
@@ -56,35 +87,95 @@
       </el-row>
     </div>
     <el-drawer
-      :before-close="drawerCloseEvent"
-      :direction="drawerDirection"
-      :size="'250px'"
-      :visible.sync="drawerOpen"
-      @open="drawerOpenEvent"
-      title="设置 Setting"
+      :before-close="settingDrawerCloseEvent"
+      :direction="settingDrawer.drawerDirection"
+      :show-close="false"
+      :size="'350px'"
+      :visible.sync="settingDrawer.drawerOpen"
+      @open="settingDrawerOpenEvent"
     >
+      <div
+        class="clearfix"
+        slot="title"
+      >
+        <span class="drawer-header">设置 Settings</span>
+      </div>
       <div id="setting">
-        <el-form
-          class="setting-form"
-          label-position="top"
-          ref="settingForm"
-        >
-          <el-form-item label="是否搜索文件内容">
-            <el-switch v-model="setting.data.isFindFileContent"></el-switch>
-          </el-form-item>
-          <el-form-item label="搜索范围">
-            <el-select v-model="setting.data.searchRoot">
-              <el-option
-                label="~/ (用户目录)"
-                value="user"
-              ></el-option>
-              <el-option
-                label="/ (根目录)"
-                value="root"
-              ></el-option>
-            </el-select>
-          </el-form-item>
-        </el-form>
+        <el-card body-style="{padding: 5px}">
+          <el-form
+            class="setting-form"
+            label-position="top"
+            ref="settingForm"
+          >
+            <el-form-item label="是否搜索文件内容">
+              <el-switch v-model="setting.data.isFindFileContent"></el-switch>
+            </el-form-item>
+            <el-form-item label="搜索范围">
+              <el-select v-model="setting.data.searchRoot">
+                <el-option
+                  label="~/ (用户目录)"
+                  value="user"
+                ></el-option>
+                <el-option
+                  label="/ (根目录)"
+                  value="root"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
+        </el-card>
+      </div>
+    </el-drawer>
+    <el-drawer
+      :direction="tipDrawer.drawerDirection"
+      :show-close="false"
+      :size="'350px'"
+      :visible.sync="tipDrawer.drawerOpen"
+    >
+      <div
+        class="clearfix"
+        slot="title"
+      >
+        <span class="drawer-header">提示 Tips</span>
+      </div>
+      <div id="tip">
+        <el-card body-style="{padding: 10px}">
+          <p>
+            <b>基本操作</b>
+          </p>
+          <el-table
+            :data="tips.base"
+            style="width: 100%"
+          >
+            <el-table-column
+              label="操作"
+              prop="name"
+            ></el-table-column>
+            <el-table-column
+              label="说明"
+              prop="description"
+            ></el-table-column>
+          </el-table>
+        </el-card>
+        <el-card body-style="{padding: 10px}">
+          <p>
+            <b>快捷搜索</b>
+          </p>
+          <p>快捷搜索即对结果类型进行简单过滤, 使用方法为在搜索时加上前缀: 'key:搜索文本'</p>
+          <el-table
+            :data="tips.key"
+            style="width: 100%"
+          >
+            <el-table-column
+              label="操作"
+              prop="name"
+            ></el-table-column>
+            <el-table-column
+              label="说明"
+              prop="description"
+            ></el-table-column>
+          </el-table>
+        </el-card>
       </div>
     </el-drawer>
   </div>
@@ -98,6 +189,7 @@ export default {
   data() {
     return {
       tableData: [],
+      tableHeight: 550,
       currentPosition: 0,
       loading: false,
       menus: [
@@ -123,8 +215,14 @@ export default {
         ]
       ],
       query: '',
-      drawerOpen: false,
-      drawerDirection: 'ltr',
+      settingDrawer: {
+        drawerOpen: false,
+        drawerDirection: 'ltr'
+      },
+      tipDrawer: {
+        drawerOpen: false,
+        drawerDirection: 'ltr'
+      },
       setting: {
         _id: 'Mverything-setting',
         data: {
@@ -135,7 +233,44 @@ export default {
       },
       homeDir: '/',
       rootDir: '/',
-      footerPosition: 0
+      sort: {
+        field: 'name',
+        type: -1
+      },
+      tips: {
+        base: [
+          {
+            name: 'Enter(回车)',
+            description: '搜索'
+          },
+          {
+            name: '→ (右方向键)',
+            description: '默认方式打开'
+          },
+          {
+            name: '鼠标双击',
+            description: '默认方式打开'
+          },
+          {
+            name: '鼠标右键',
+            description: '快捷菜单'
+          }
+        ],
+        key: [
+          {
+            name: 'f',
+            description: '仅搜索文件'
+          },
+          {
+            name: 'F',
+            description: '仅搜索文件夹'
+          },
+          {
+            name: 'p',
+            description: '仅搜索图片'
+          }
+        ]
+      }
     }
   },
   mounted() {
@@ -145,7 +280,7 @@ export default {
       utools.setSubInput(({ text }) => {
         // 把输入更新到变量中
         this.query = text
-      }, '文件名搜索')
+      }, 'Enter 搜索, 双击/方向键→ 直接打开, 右击 快捷菜单')
     })
     // 绑定键盘事件
     document.addEventListener('keydown', this.keyDownEvent)
@@ -175,8 +310,6 @@ export default {
 
       // 如果搜索的关键字为空
       if (query === '') {
-        // 收回面板
-        this.expendPanel(-1)
         // 清空结果表格
         this.$refs.xTable.loadData([])
         // 关闭加载进度条
@@ -203,13 +336,17 @@ export default {
       var isOnlyName = !this.setting.data.isFindFileContent
       // 搜索
       window.find(query, isOnlyName, dir, result => {
+        console.log(result)
         if (this.$refs.xTable) {
           // 处理搜索结果
           this.tableData = Handler.handle(result, keyWord)
+          this.tableData = Handler.sort(
+            this.tableData,
+            this.sort.field,
+            this.sort.type
+          )
           // 加载搜索结果
           this.$refs.xTable.loadData(this.tableData)
-          // 展开面板
-          this.expendPanel(this.tableData.length)
           // 设置第一条结果的高亮
           this.$refs.xTable.setCurrentRow(this.tableData[0])
           // 滚动到表格顶部
@@ -221,14 +358,17 @@ export default {
     },
     expendPanel(size) {
       // 如果结果条数为0, 收起面板
-      if (size < 0) {
+      if (size < 1) {
         utools.setExpendHeight(1)
+        this.tableHeight = 0
         this.footerPosition = 0
+        return
       }
       // 如果结果条数超过8条就设定为最大高度, 否则计算实际高度
-      var height = size > 8 ? 590 : size * 65 + 40
-      this.footerPosition = height - 40
-      utools.setExpendHeight(height)
+      var height = size > 8 ? 550 : size * 65
+      this.tableHeight = height
+      this.footerPosition = height
+      utools.setExpendHeight(height + 40)
     },
     // 键盘事件
     keyDownEvent(event) {
@@ -238,8 +378,6 @@ export default {
       if (keyCode === 13) {
         // 开启加载中进度条
         this.loading = true
-        // 面板展开到最大
-        this.expendPanel(9)
         // 执行搜索
         this.search(this.query.trim())
       }
@@ -249,6 +387,10 @@ export default {
         var row = this.$refs.xTable.getCurrentRow()
         // 使用默认方式打开
         window.openDirectly(row.path)
+      }
+      // ESC 键
+      else if (keyCode === 27) {
+        // event.stopPropagation()
       }
     },
     // 表格快捷菜单点击事件
@@ -273,16 +415,34 @@ export default {
           break
       }
     },
+    sortChangeEvent(value) {
+      this.loading = true
+      this.tableData = Handler.sort(
+        this.tableData,
+        this.sort.field,
+        this.sort.type
+      )
+      // 加载搜索结果
+      this.$refs.xTable.loadData(this.tableData)
+      // 设置第一条结果的高亮
+      this.$refs.xTable.setCurrentRow(this.tableData[0])
+      // 滚动到表格顶部
+      this.$refs.xTable.scrollTo(this.tableData[0])
+      this.loading = false
+    },
     // 行单击事件
+    cellClickEvent({ row }) {
+      this.$refs.xTable.setCurrentRow(row)
+    },
+    // 行双击事件
     cellDClickEvent({ row }) {
       // 直接打开
       window.openDirectly(row.path)
     },
-    drawerOpenEvent() {
-      this.expendPanel(9)
-    },
+    // 抽屉打开事件
+    settingDrawerOpenEvent() {},
     // 抽屉关闭事件
-    drawerCloseEvent(done) {
+    settingDrawerCloseEvent(done) {
       // 判断设置中的_rev是否为空
       if (this.setting._rev === '') {
         // 新增配置到数据库
@@ -307,7 +467,6 @@ export default {
         this.setting._rev = result.rev
       }
       this.$message.success('配置保存成功')
-      this.expendPanel(this.tableData.length)
       done()
     }
   }
@@ -315,6 +474,13 @@ export default {
 </script>
 
 <style scoped>
+.vxe-table:focus {
+  outline: none;
+}
+.vxe-table::before,
+.vxe-table::after {
+  height: 0px;
+}
 .icon {
   width: 33px;
   height: 33px;
@@ -325,10 +491,26 @@ export default {
   user-select: none;
 }
 #footer {
-  background-color: rgba(184, 184, 184, 0.055);
   height: 40px;
 }
-.setting-button, .setting-form {
+.setting-form {
   padding-left: 20px;
 }
+#tip .el-card,
+#setting .el-card {
+  margin: 10px;
+}
+.gap {
+  padding-left: 2px;
+  padding-right: 2px;
+}
+.drawer-header {
+  font-size: 1.5em;
+}
 </style>
+<style>
+.el-drawer.ltr {
+  overflow-y: auto;
+}
+</style>
+

@@ -3,14 +3,14 @@
   "author": "lanyuanxiaoyao",
   "homepage": "http://lanyuanxiaoyao.com",
   "description": "Mac 上的 Everything",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "logo": "logo.png",
   "main": "index.html",
   "preload": "preload.js",
   "platform": ["darwin"],
   "pluginSetting": {
     "single": true,
-    "height": 1
+    "height": 590
   },
   "features": [{
     "code": "find",

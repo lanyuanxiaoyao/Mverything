@@ -6,10 +6,18 @@ utools 插件, 用于在 Mac 平台下提供与 Windows 平台下 Everything 插
 另外科普一下 Everything 是基于 NTFS 文件系统的特性实现实时搜索, Mac 无论如何也是很难达到 Everything 的速度的, 所以插件直接使用了『回合制搜索』(即输入完成后需要按一下回车再开始搜索)而不是『实时搜索』, 反正也做不到干脆放弃.
 
 # 版本
-`0.0.1`
+- `0.0.3`
+  1. 增加操作提示说明板面
+  2. 增加按照文件名, 大小等信息过滤的按钮
+  3. 美化一些样式
+- `0.0.2`
+调整不和谐的样式(底部蓝条, 宽度过大导致出现滚动条)
+- `0.0.1`
+基本功能
 
 # 下载
-[下载](https://www.lanzous.com/i5gtmhe)
+[下载最新版](https://www.lanzous.com/i5hde0j)
+[历史版本](https://www.lanzous.com/b884432)
 
 # 操作
 ## 关键字
@@ -36,10 +44,14 @@ utools 插件, 用于在 Mac 平台下提供与 Windows 平台下 Everything 插
 
 # 截图
 
-![安装界面](https://user-gold-cdn.xitu.io/2019/8/7/16c6afdcdef7d7b7?w=870&h=666&f=png&s=47037)
+![安装界面](https://s2.ax1x.com/2019/08/08/eHPtb9.png)
 
-![主界面](https://s2.ax1x.com/2019/08/07/e5TFxg.png)
+![主界面](https://s2.ax1x.com/2019/08/08/eHPlCV.png)
 
-![搜索界面](https://s2.ax1x.com/2019/08/07/e570kq.png)
+![搜索界面](https://s2.ax1x.com/2019/08/08/eHCd1S.png)
 
-![条件搜索](https://s2.ax1x.com/2019/08/07/e5O3QK.png)
+![条件搜索](https://s2.ax1x.com/2019/08/08/eHP9AI.png)
+
+![设置界面](https://s2.ax1x.com/2019/08/08/eHPZuQ.png)
+
+![提示界面](https://s2.ax1x.com/2019/08/08/eHClOH.png)

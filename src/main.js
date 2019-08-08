@@ -3,7 +3,7 @@ import Finder from "./Finder.vue";
 import VXETable from "vxe-table";
 import "vxe-table/lib/index.css";
 import ElementUI from "element-ui";
-import "element-ui/lib/theme-chalk/index.css";
+import "../theme/index.css";
 
 Vue.use(VXETable);
 Vue.use(ElementUI);
