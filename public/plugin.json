@@ -1,0 +1,20 @@
+{
+  "pluginName": "Mverything",
+  "author": "lanyuanxiaoyao",
+  "homepage": "http://lanyuanxiaoyao.com",
+  "description": "Mac 上的 Everything",
+  "version": "0.0.1",
+  "logo": "logo.png",
+  "main": "index.html",
+  "preload": "preload.js",
+  "platform": ["darwin"],
+  "pluginSetting": {
+    "single": true,
+    "height": 1
+  },
+  "features": [{
+    "code": "find",
+    "explain": "查找 Mac 上的文件",
+    "cmds": ["find", "查找"]
+  }]
+}
