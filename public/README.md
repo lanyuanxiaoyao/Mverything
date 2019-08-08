@@ -11,9 +11,6 @@ utools 插件, 用于在 Mac 平台下提供与 Windows 平台下 Everything 插
 # 版本
 `0.0.1`
 
-# 下载
-[下载](https://www.lanzous.com/i5gh72h)
-
 # 操作
 ## 关键字
 `find`, `查找`

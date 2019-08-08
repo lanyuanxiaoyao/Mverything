@@ -9,7 +9,7 @@ utools 插件, 用于在 Mac 平台下提供与 Windows 平台下 Everything 插
 `0.0.1`
 
 # 下载
-[下载](https://www.lanzous.com/i5grdxe)
+[下载](https://www.lanzous.com/i5gtmhe)
 
 # 操作
 ## 关键字

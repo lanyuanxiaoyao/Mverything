@@ -45,6 +45,7 @@
         <el-col :span="20">
           <el-button
             @click="drawerOpen = true"
+            class="setting-button"
             icon="el-icon-s-tools"
             type="text"
           >设置</el-button>
@@ -64,6 +65,7 @@
     >
       <div id="setting">
         <el-form
+          class="setting-form"
           label-position="top"
           ref="settingForm"
         >
@@ -195,7 +197,8 @@ export default {
       }
 
       // 判断当前配置中设置的搜索起始目录
-      var dir = this.setting.data.searchRoot === 'user' ? this.homeDir : this.rootDir
+      var dir =
+        this.setting.data.searchRoot === 'user' ? this.homeDir : this.rootDir
       // 判断当前配置设置的搜索模式
       var isOnlyName = !this.setting.data.isFindFileContent
       // 搜索
@@ -325,7 +328,7 @@ export default {
   background-color: rgba(184, 184, 184, 0.055);
   height: 40px;
 }
-#setting {
-  padding: 20px;
+.setting-button, .setting-form {
+  padding-left: 20px;
 }
 </style>
