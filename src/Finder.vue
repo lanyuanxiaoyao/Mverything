@@ -31,7 +31,6 @@
       <vxe-table-column field="path">
         <template v-slot="{ row }">
           <span class="path">{{ row.path }}</span>
-          <span>{{ row.size }}</span>
         </template>
       </vxe-table-column>
     </vxe-table>
@@ -293,13 +292,13 @@ export default {
     initial() {
       // 初始化找到用户目录
       this.homeDir = utools.getPath('home')
+      // 把上次搜索的关键字设置到输入框中
+      utools.setSubInputValue(this.query)
       // 获取配置信息
       var setting = utools.db.get(this.setting._id)
       if (setting) {
         this.setting = setting
       }
-      // 把上次搜索的关键字设置到输入框中
-      utools.setSubInputValue(this.query)
     },
     // 搜索
     search(query) {
@@ -311,7 +310,8 @@ export default {
       // 如果搜索的关键字为空
       if (query === '') {
         // 清空结果表格
-        this.$refs.xTable.loadData([])
+        this.tableData = []
+        this.$refs.xTable.loadData(this.tableData)
         // 关闭加载进度条
         this.loading = false
         return

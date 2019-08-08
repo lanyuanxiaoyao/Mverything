@@ -16,7 +16,7 @@ utools 插件, 用于在 Mac 平台下提供与 Windows 平台下 Everything 插
 基本功能
 
 # 下载
-[下载最新版](https://www.lanzous.com/i5hde0j)
+[下载最新版](https://www.lanzous.com/i5hdwob)
 [历史版本](https://www.lanzous.com/b884432)
 
 # 操作
