@@ -9,6 +9,10 @@ utools 插件, 用于在 Mac 平台下提供与 Windows 平台下 Everything 插
 目前直接使用`mdfind`的`-name`属性来实现仅搜索文件名, 不搜索文件内容, 但搜索文件内容也是 Spotlight 相比较 Everything 的一个亮点, 以后也许会做成条件查询.
 
 # 版本
+- `0.0.4`
+  1. 增加文件详情面板
+  2. 修改快捷键逻辑, 单击右方向键为打开文件详情, 双击右方向键用默认方式打开文件
+  3. 修改升序降序按钮为图标
 - `0.0.3`
   1. 增加操作提示说明板面
   2. 增加按照文件名, 大小等信息过滤的按钮
@@ -18,6 +22,19 @@ utools 插件, 用于在 Mac 平台下提供与 Windows 平台下 Everything 插
 - `0.0.1`
 基本功能
 
+# 源码
+没啥好敝帚自珍的.
+
+传送门 → [Mverything](https://github.com/lanyuanxiaoyao/Mverything)
+
+<div>
+  <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/lanyuanxiaoyao/Mverything">
+  <img alt="GitHub release version" src="https://img.shields.io/github/release/lanyuanxiaoyao/Mverything">
+  <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/lanyuanxiaoyao/Mverything">
+  <img alt="GitHub" src="https://img.shields.io/github/license/lanyuanxiaoyao/Mverything">
+  <img alt="GitHub stars" src="https://img.shields.io/github/stars/lanyuanxiaoyao/Mverything">
+</div>
+
 # 操作
 ## 关键字
 `find`, `查找`
@@ -26,8 +43,10 @@ utools 插件, 用于在 Mac 平台下提供与 Windows 平台下 Everything 插
 | 操作 | 功能 |
 | --- | --- |
 | `Enter(回车)` | 搜索 |
-| `Arrow Right(右方向键)` | 使用默认方式打开 |
-| `Mouse Right(鼠标右击)` | 快捷菜单 |
+| `Arrow Right(右方向键单击)` | 文件详情 |
+| `Arrow Right(右方向键双击)` | 默认方式打开文件 |
+| `Mouse Left(鼠标左键双击)` | 默认方式打开文件 |
+| `Mouse Right(鼠标右键单击)` | 快捷菜单 |
 
 ## 条件查询
 目前支持几个简单的条件, 使用方式为`key:搜索词`

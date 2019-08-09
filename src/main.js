@@ -10,6 +10,14 @@ Vue.use(ElementUI);
 
 Vue.config.productionTip = false;
 
+Vue.directive('focus', {
+  update: (el, { value }) => {
+    if (value) {
+      el.focus()
+    }
+  }
+})
+
 new Vue({
   render: h => h(Finder)
 }).$mount("#app");

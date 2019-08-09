@@ -6,6 +6,10 @@ utools 插件, 用于在 Mac 平台下提供与 Windows 平台下 Everything 插
 另外科普一下 Everything 是基于 NTFS 文件系统的特性实现实时搜索, Mac 无论如何也是很难达到 Everything 的速度的, 所以插件直接使用了『回合制搜索』(即输入完成后需要按一下回车再开始搜索)而不是『实时搜索』, 反正也做不到干脆放弃.
 
 # 版本
+- `0.0.4`
+  1. 增加文件详情面板
+  2. 修改快捷键逻辑, 单击右方向键为打开文件详情, 双击右方向键用默认方式打开文件
+  3. 修改升序降序按钮为图标
 - `0.0.3`
   1. 增加操作提示说明板面
   2. 增加按照文件名, 大小等信息过滤的按钮
@@ -16,8 +20,21 @@ utools 插件, 用于在 Mac 平台下提供与 Windows 平台下 Everything 插
 基本功能
 
 # 下载
-[下载最新版](https://www.lanzous.com/i5hdwob)
-[历史版本](https://www.lanzous.com/b884432)
+[下载最新版](https://github.com/lanyuanxiaoyao/Mverything/releases/latest)
+[历史版本](https://github.com/lanyuanxiaoyao/Mverything/releases)
+
+# 源码
+没啥好敝帚自珍的.
+
+传送门 → [Mverything](https://github.com/lanyuanxiaoyao/Mverything)
+
+<div>
+  <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/lanyuanxiaoyao/Mverything">
+  <img alt="GitHub release version" src="https://img.shields.io/github/release/lanyuanxiaoyao/Mverything">
+  <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/lanyuanxiaoyao/Mverything">
+  <img alt="GitHub" src="https://img.shields.io/github/license/lanyuanxiaoyao/Mverything">
+  <img alt="GitHub stars" src="https://img.shields.io/github/stars/lanyuanxiaoyao/Mverything">
+</div>
 
 # 操作
 ## 关键字
@@ -27,8 +44,10 @@ utools 插件, 用于在 Mac 平台下提供与 Windows 平台下 Everything 插
 | 操作 | 功能 |
 | --- | --- |
 | `Enter(回车)` | 搜索 |
-| `Arrow Right(右方向键)` | 使用默认方式打开 |
-| `Mouse Right(鼠标右击)` | 快捷菜单 |
+| `Arrow Right(右方向键单击)` | 文件详情 |
+| `Arrow Right(右方向键双击)` | 默认方式打开文件 |
+| `Mouse Left(鼠标左键双击)` | 默认方式打开文件 |
+| `Mouse Right(鼠标右键单击)` | 快捷菜单 |
 
 ## 条件查询
 目前支持几个简单的条件, 使用方式为`key:搜索词`

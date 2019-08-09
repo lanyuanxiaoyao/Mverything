@@ -16,6 +16,7 @@
       resizable
       show-overflow
       tabindex="0"
+      v-focus="tableFocus"
     >
       <vxe-table-column
         field="kMDItemContentType"
@@ -76,8 +77,12 @@
             size="mini"
             v-model="sort.type"
           >
-            <el-radio-button label="-1">上</el-radio-button>
-            <el-radio-button label="1">下</el-radio-button>
+            <el-radio-button label="1">
+              <i class="el-icon-sort-down"></i>
+            </el-radio-button>
+            <el-radio-button label="-1">
+              <i class="el-icon-sort-up"></i>
+            </el-radio-button>
           </el-radio-group>
         </el-col>
         <el-col :span="4">
@@ -139,9 +144,12 @@
       </div>
       <div id="tip">
         <el-card body-style="{padding: 10px}">
-          <p>
+          <div
+            class="clearfix"
+            slot="header"
+          >
             <b>基本操作</b>
-          </p>
+          </div>
           <el-table
             :data="tips.base"
             style="width: 100%"
@@ -157,9 +165,12 @@
           </el-table>
         </el-card>
         <el-card body-style="{padding: 10px}">
-          <p>
+          <div
+            class="clearfix"
+            slot="header"
+          >
             <b>快捷搜索</b>
-          </p>
+          </div>
           <p>快捷搜索即对结果类型进行简单过滤, 使用方法为在搜索时加上前缀: 'key:搜索文本'</p>
           <el-table
             :data="tips.key"
@@ -177,6 +188,79 @@
         </el-card>
       </div>
     </el-drawer>
+    <el-drawer
+      :direction="detailDrawer.drawerDirection"
+      :show-close="false"
+      :size="'350px'"
+      :visible.sync="detailDrawer.drawerOpen"
+    >
+      <div
+        class="clearfix"
+        slot="title"
+      >
+        <span class="drawer-header">文件详情 Detail</span>
+      </div>
+      <div id="detail">
+        <el-card body-style="{padding: 5px}">
+          <el-form
+            label-position="left"
+            label-width="70px"
+          >
+            <el-form-item label="文件名">
+              <div class="wrap">
+                {{ detailDrawer.item.name }}
+                <el-button
+                  @click="copyToClipBoard(detailDrawer.item.name)"
+                  type="text"
+                >复制</el-button>
+              </div>
+            </el-form-item>
+            <el-form-item label="路径">
+              <div class="wrap">
+                {{ detailDrawer.item.path }}
+                <el-button
+                  @click="copyToClipBoard(detailDrawer.item.path)"
+                  type="text"
+                >复制</el-button>
+              </div>
+            </el-form-item>
+            <el-form-item
+              label="大小"
+              v-show="detailDrawer.item.size"
+            >
+              <span
+                v-if="detailDrawer.item.size > 1000000000"
+              >{{ numberFix(detailDrawer.item.size / 1000000000, 2) }} GB</span>
+              <span
+                v-else-if="detailDrawer.item.size > 1000000"
+              >{{ numberFix(detailDrawer.item.size / 1000000, 2) }} MB</span>
+              <span v-else-if="detailDrawer.item.size > 1000">{{ numberFix(detailDrawer.item.size / 1000, 2) }} KB</span>
+              <span v-else-if="detailDrawer.item.size > 0">{{ detailDrawer.item.size }} B</span>
+              <span v-else>无</span>
+            </el-form-item>
+            <el-form-item
+              label="子文件数"
+              v-show="detailDrawer.item.count"
+            >{{ detailDrawer.item.count }}</el-form-item>
+            <el-form-item label="类型">{{ detailDrawer.item.kind }}</el-form-item>
+            <el-form-item label="创建时间">
+              <el-date-picker
+                disabled
+                type="datetime"
+                v-model="detailDrawer.item.createDate"
+              ></el-date-picker>
+            </el-form-item>
+            <el-form-item label="更新时间">
+              <el-date-picker
+                disabled
+                type="datetime"
+                v-model="detailDrawer.item.updateDate"
+              ></el-date-picker>
+            </el-form-item>
+          </el-form>
+        </el-card>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
@@ -189,9 +273,16 @@ export default {
     return {
       tableData: [],
       tableHeight: 550,
+      tableFocus: false,
       currentPosition: 0,
       loading: false,
       menus: [
+        [
+          {
+            code: 'detail',
+            name: '显示详情'
+          }
+        ],
         [
           {
             code: 'open',
@@ -222,6 +313,11 @@ export default {
         drawerOpen: false,
         drawerDirection: 'ltr'
       },
+      detailDrawer: {
+        drawerOpen: false,
+        drawerDirection: 'rtl',
+        item: {}
+      },
       setting: {
         _id: 'Mverything-setting',
         data: {
@@ -243,7 +339,11 @@ export default {
             description: '搜索'
           },
           {
-            name: '→ (右方向键)',
+            name: '→ (右方向键单击)',
+            description: '文件详情'
+          },
+          {
+            name: '→ (右方向键双击)',
             description: '默认方式打开'
           },
           {
@@ -336,7 +436,6 @@ export default {
       var isOnlyName = !this.setting.data.isFindFileContent
       // 搜索
       window.find(query, isOnlyName, dir, result => {
-        console.log(result)
         if (this.$refs.xTable) {
           // 处理搜索结果
           this.tableData = Handler.handle(result, keyWord)
@@ -380,9 +479,25 @@ export default {
         this.loading = true
         // 执行搜索
         this.search(this.query.trim())
+        this.tableFocus = true
+      }
+      // 左方向键
+      else if (keyCode === 37) {
+        if (this.detailDrawer.drawerOpen) {
+          this.detailDrawer.drawerOpen = false
+          return
+        }
       }
       // 右方向键
       else if (keyCode === 39) {
+        // 打开详情页
+        if (!this.detailDrawer.drawerOpen) {
+          this.detailDrawer.item = this.$refs.xTable.getCurrentRow()
+          this.detailDrawer.drawerOpen = true
+          return
+        }
+        // 关闭详情页
+        this.detailDrawer.drawerOpen = false
         // 获取当前高亮的结果
         var row = this.$refs.xTable.getCurrentRow()
         // 使用默认方式打开
@@ -399,6 +514,10 @@ export default {
       var path = row.path
       var name = row.name
       switch (code) {
+        case 'detail':
+          this.detailDrawer.item = row
+          this.detailDrawer.drawerOpen = true
+          break
         case 'open':
           window.openDirectly(path)
           break
@@ -406,14 +525,18 @@ export default {
           window.openInFinder(path)
           break
         case 'copyFilePath':
-          window.writeToClipboard(path)
-          utools.showNotification('复制成功: ' + path, null, true)
+          this.copyToClipBoard(path)
           break
         case 'copyFileName':
-          window.writeToClipboard(name)
-          utools.showNotification('复制成功: ' + name, null, true)
+          this.copyToClipBoard(name)
           break
       }
+    },
+    copyToClipBoard(text) {
+      window.writeToClipboard(text)
+    },
+    numberFix(number, fixed) {
+      return number.toFixed(fixed)
     },
     sortChangeEvent(value) {
       this.loading = true
@@ -497,7 +620,8 @@ export default {
   padding-left: 20px;
 }
 #tip .el-card,
-#setting .el-card {
+#setting .el-card,
+#detail .el-card {
   margin: 10px;
 }
 .gap {
@@ -507,9 +631,13 @@ export default {
 .drawer-header {
   font-size: 1.5em;
 }
+.wrap {
+  word-break: break-all;
+}
 </style>
 <style>
-.el-drawer.ltr {
+.el-drawer.ltr,
+.el-drawer.rtl {
   overflow-y: auto;
 }
 </style>
