@@ -32,7 +32,7 @@
       <vxe-table-column field="path">
         <template v-slot="{ row }">
           <span class="name">{{ row.name }}</span>
-          <span class="path"> — {{ row.path }}</span>
+          <span class="path">— {{ row.path }}</span>
         </template>
       </vxe-table-column>
     </vxe-table>
@@ -225,26 +225,14 @@
             <b>快捷搜索</b>
           </div>
           <p>快捷搜索即对结果类型进行简单过滤, 使用方法为在搜索时加上前缀: 'key:搜索文本'</p>
-          <el-table
-            :data="tips.key"
-            style="width: 100%"
-          >
-            <el-table-column
-              label="操作"
-              prop="name"
-            ></el-table-column>
-            <el-table-column
-              label="说明"
-              prop="description"
-            ></el-table-column>
-          </el-table>
+          <p>详细使用见插件主页: <a href="https://yuanliao.info/d/595/13">https://yuanliao.info/d/595/13</a></p>
         </el-card>
       </div>
     </el-drawer>
     <el-drawer
       :direction="detailDrawer.drawerDirection"
       :show-close="false"
-      :size="'350px'"
+      :size="'400px'"
       :visible.sync="detailDrawer.drawerOpen"
     >
       <div
@@ -452,10 +440,10 @@ export default {
           },
           {
             name: 'Space (空格)',
-            description: '文件详情'
+            description: '预览'
           },
           {
-            name: '→ (右方向键双击)',
+            name: '→ (右方向键)',
             description: '默认方式打开'
           },
           {
@@ -465,20 +453,6 @@ export default {
           {
             name: '鼠标右键',
             description: '快捷菜单'
-          }
-        ],
-        key: [
-          {
-            name: 'f',
-            description: '仅搜索文件'
-          },
-          {
-            name: 'F',
-            description: '仅搜索文件夹'
-          },
-          {
-            name: 'p',
-            description: '仅搜索图片'
           }
         ]
       }
@@ -604,24 +578,43 @@ export default {
         var separatorIndex = value.indexOf('&')
         var key = value.substring(0, separatorIndex)
         var regex = value.substring(separatorIndex + 1)
-        this.setting.data.keyList.push({
+        var keySearch = {
           key: key,
           regex: regex
+        }
+        if (this.findIndexInSearchKeyList(keySearch.key) > -1) {
+          this.$confirm(
+            '发现重复的关键词: ' + keySearch.key + ' , 是否要覆盖 ?',
+            '注意',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }
+          ).then(() => {
+            var index = this.findIndexInSearchKeyList(keySearch.key)
+            if (index > -1) {
+              this.setting.data.keyList.splice(index, 1)
+            }
+          })
+        }
+        this.setting.data.keyList.push(keySearch)
+        this.$message({
+          type: 'success',
+          message: '添加成功!'
         })
       })
     },
     removeKeySearch(row) {
-      this.$confirm('确认删除快捷搜索' + row.key, '不可恢复', {
+      this.$confirm('确认删除快捷搜索: ' + row.key, '不可恢复', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         var index = this.findIndexInSearchKeyList(row.key)
-        console.log(index)
         if (index > -1) {
           this.setting.data.keyList.splice(index, 1)
         }
-        console.log(this.setting.data.keyList)
         this.$message({
           type: 'success',
           message: '删除成功!'
@@ -658,7 +651,11 @@ export default {
       return number.toFixed(fixed)
     },
     loadDetail() {
-      this.detailDrawer.item = this.$refs.xTable.getCurrentRow()
+      var detail = this.$refs.xTable.getCurrentRow()
+      if (detail.path === this.detailDrawer.item.path) {
+        return
+      }
+      this.detailDrawer.item = detail
       if (this.detailDrawer.item.type === 'public.folder') {
         this.detailDrawer.item.preview = 'folder'
         window.readFileList(this.detailDrawer.item.path, data => {
@@ -669,8 +666,9 @@ export default {
       var extension = Tools.getExtension(this.detailDrawer.item.name)
       this.detailDrawer.item.preview = Constant.typeMap()[extension]
       if (
-        this.detailDrawer.item.preview &&
-        this.detailDrawer.item.preview === 'text'
+        this.detailDrawer.item.type === 'public.plain-text' ||
+        (this.detailDrawer.item.preview &&
+          this.detailDrawer.item.preview === 'text')
       ) {
         window.readTextFile(this.detailDrawer.item.path, data => {
           var encode = CharDetect.detect(data)
@@ -692,6 +690,9 @@ export default {
       }
       // 空格键
       else if (keyCode === 32) {
+        if (this.tableData.length === 0) {
+          return
+        }
         if (!this.detailDrawer.drawerOpen) {
           this.loadDetail()
         }
