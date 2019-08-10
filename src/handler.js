@@ -1,28 +1,31 @@
 /* eslint-disable no-console */
 import icons from "./icon";
 export default {
-  handle(items, keyWord) {
-    if (keyWord !== "") {
-      switch (keyWord) {
+  handle(items, highFilter, keyWord, keyMap) {
+    console.log(highFilter, keyWord)
+
+    if (highFilter !== '') {
+      switch (highFilter) {
         // file
         case "f":
           items = items.filter(
             item => item.kMDItemContentType !== "public.folder"
           );
           break;
-        // folder
+          // folder
         case "F":
           items = items.filter(
             item => item.kMDItemContentType === "public.folder"
           );
-          break;
-        // picture
-        case "p":
-          var picRegex = /png|jpg|jpeg|ico|bmp|gif|psd|svg|tif|eps|raw/i;
-          items = items.filter(
-            item => item.kMDItemContentType.search(picRegex) > 0
-          );
-          break;
+      }
+    }
+
+    if (keyWord !== "") {
+      var regex = keyMap[keyWord]
+      if (regex) {
+        items = items.filter(
+          item => item.path.search(keyMap[keyWord]) > 0
+        );
       }
     }
 
@@ -33,6 +36,7 @@ export default {
       if (item === undefined) {
         continue;
       }
+
       var icon = icons.icon(item);
       data.push({
         path: item.path,
@@ -43,7 +47,10 @@ export default {
         kind: item.kMDItemKind,
         count: item.kMDItemFSNodeCount,
         createDate: item.kMDItemFSCreationDate,
-        updateDate: item.kMDItemFSContentChangeDate
+        updateDate: item.kMDItemFSContentChangeDate,
+        text: "",
+        preview: "",
+        files: []
       });
     }
 

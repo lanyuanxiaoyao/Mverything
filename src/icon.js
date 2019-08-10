@@ -1,4 +1,6 @@
 /* eslint-disable no-console */
+import Tools from './tools'
+
 export default {
   icons() {
     return {
@@ -142,7 +144,7 @@ export default {
     var icon = this.extendIcons()[type];
     if (icon === undefined) {
       var name = item.kMDItemFSName;
-      var extension = this.getExtension(name);
+      var extension = Tools.getExtension(name);
       if (extension !== "") {
         icon = this.icons()[extension] || this.extendIcons()[extension];
         if (icon !== undefined) {
@@ -155,12 +157,5 @@ export default {
       }
     }
     return icon;
-  },
-  getExtension(name) {
-    var index = name.lastIndexOf(".");
-    if (index > 0) {
-      return name.substring(index + 1, name.length).toLowerCase();
-    }
-    return "";
   }
 };

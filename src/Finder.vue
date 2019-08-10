@@ -10,13 +10,13 @@
       @cell-context-menu="cellClickEvent"
       @cell-dblclick="cellDClickEvent"
       @context-menu-click="menuClickEvent"
+      @current-change="currentChangeEvent"
       highlight-current-row
       highlight-hover-row
       ref="xTable"
       resizable
       show-overflow
       tabindex="0"
-      v-focus="tableFocus"
     >
       <vxe-table-column
         field="kMDItemContentType"
@@ -31,7 +31,8 @@
       </vxe-table-column>
       <vxe-table-column field="path">
         <template v-slot="{ row }">
-          <span class="path">{{ row.path }}</span>
+          <span class="name">{{ row.name }}</span>
+          <span class="path"> — {{ row.path }}</span>
         </template>
       </vxe-table-column>
     </vxe-table>
@@ -105,7 +106,10 @@
         <span class="drawer-header">设置 Settings</span>
       </div>
       <div id="setting">
-        <el-card body-style="{padding: 5px}">
+        <el-card
+          body-style="{padding: 5px}"
+          header="基本设置"
+        >
           <el-form
             class="setting-form"
             label-position="top"
@@ -127,6 +131,55 @@
               </el-select>
             </el-form-item>
           </el-form>
+        </el-card>
+        <el-card body-style="{padding: 5px}">
+          <div
+            class="clearfix"
+            slot="header"
+          >
+            <span>快捷搜索</span>
+            <el-button
+              @click="addKeySearch"
+              style="float: right; padding: 3px 0"
+              type="text"
+            >添加</el-button>
+          </div>
+          <el-table
+            :data="setting.data.keyList"
+            size="small"
+            style="width: 100%"
+          >
+            <el-table-column
+              label="关键词"
+              prop="key"
+              width="70"
+            >
+              <template slot-scope="scope">
+                <code>{{ scope.row.key }}</code>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="正则表达式"
+              prop="regex"
+            >
+              <template slot-scope="scope">
+                <code>{{ scope.row.regex }}</code>
+              </template>
+            </el-table-column>
+            <el-table-column
+              fixed="right"
+              label="操作"
+              width="50"
+            >
+              <template slot-scope="scope">
+                <el-button
+                  @click="removeKeySearch(scope.row)"
+                  size="small"
+                  type="text"
+                >删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
         </el-card>
       </div>
     </el-drawer>
@@ -201,10 +254,49 @@
         <span class="drawer-header">文件详情 Detail</span>
       </div>
       <div id="detail">
+        <el-card body-style="{padding: 2px}">
+          <el-table
+            :data="detailDrawer.item.files"
+            :max-height="400"
+            @row-dblclick="detailFolderTableDbClickEvent"
+            empty-text="文件夹为空"
+            size="mini"
+            stripe
+            v-if="detailDrawer.item.preview === 'folder'"
+          >
+            <el-table-column
+              label="文件名"
+              prop="name"
+            ></el-table-column>
+          </el-table>
+          <img
+            :src="detailDrawer.item.path"
+            v-else-if="detailDrawer.item.preview === 'picture'"
+            width="100%"
+          />
+          <div v-else-if="detailDrawer.item.preview === 'text'">
+            <el-alert
+              show-icon
+              style="margin-bottom: 5px"
+              title="仅提供部分文本内容预览"
+              type="warning"
+            ></el-alert>
+            <el-input
+              :autosize="{ minRows: 1, maxRows: 20 }"
+              readonly
+              resize="none"
+              type="textarea"
+              v-model="detailDrawer.item.text"
+            ></el-input>
+          </div>
+          <span v-else>暂无预览</span>
+        </el-card>
         <el-card body-style="{padding: 5px}">
           <el-form
+            :show-message="false"
             label-position="left"
             label-width="70px"
+            size="mini"
           >
             <el-form-item label="文件名">
               <div class="wrap">
@@ -234,7 +326,9 @@
               <span
                 v-else-if="detailDrawer.item.size > 1000000"
               >{{ numberFix(detailDrawer.item.size / 1000000, 2) }} MB</span>
-              <span v-else-if="detailDrawer.item.size > 1000">{{ numberFix(detailDrawer.item.size / 1000, 2) }} KB</span>
+              <span
+                v-else-if="detailDrawer.item.size > 1000"
+              >{{ numberFix(detailDrawer.item.size / 1000, 2) }} KB</span>
               <span v-else-if="detailDrawer.item.size > 0">{{ detailDrawer.item.size }} B</span>
               <span v-else>无</span>
             </el-form-item>
@@ -242,7 +336,15 @@
               label="子文件数"
               v-show="detailDrawer.item.count"
             >{{ detailDrawer.item.count }}</el-form-item>
-            <el-form-item label="类型">{{ detailDrawer.item.kind }}</el-form-item>
+            <el-form-item label="类型">
+              <el-tooltip
+                :enterable="false"
+                placement="top"
+              >
+                <div slot="content">{{ detailDrawer.item.type }}</div>
+                <span>{{ detailDrawer.item.kind }}</span>
+              </el-tooltip>
+            </el-form-item>
             <el-form-item label="创建时间">
               <el-date-picker
                 disabled
@@ -266,6 +368,10 @@
 
 <script>
 import Handler from './handler'
+import Constant from './constant'
+import Tools from './tools'
+import IconvLite from 'iconv-lite'
+import CharDetect from 'chardet'
 
 export default {
   name: 'finder',
@@ -273,7 +379,6 @@ export default {
     return {
       tableData: [],
       tableHeight: 550,
-      tableFocus: false,
       currentPosition: 0,
       loading: false,
       menus: [
@@ -322,7 +427,14 @@ export default {
         _id: 'Mverything-setting',
         data: {
           isFindFileContent: false,
-          searchRoot: 'user'
+          searchRoot: 'user',
+          searchKey: ':',
+          keyList: [
+            {
+              key: 'p',
+              regex: 'png|jpg'
+            }
+          ]
         },
         _rev: ''
       },
@@ -339,7 +451,7 @@ export default {
             description: '搜索'
           },
           {
-            name: '→ (右方向键单击)',
+            name: 'Space (空格)',
             description: '文件详情'
           },
           {
@@ -400,6 +512,14 @@ export default {
         this.setting = setting
       }
     },
+    // 重置
+    reset() {
+      // 清空结果表格
+      this.tableData = []
+      this.$refs.xTable.loadData(this.tableData)
+      // 关闭加载进度条
+      this.loading = false
+    },
     // 搜索
     search(query) {
       // 打开加载中进度条
@@ -409,24 +529,37 @@ export default {
 
       // 如果搜索的关键字为空
       if (query === '') {
-        // 清空结果表格
-        this.tableData = []
-        this.$refs.xTable.loadData(this.tableData)
-        // 关闭加载进度条
-        this.loading = false
+        this.$message.info('搜索词为空')
+        this.reset()
         return
       }
 
+      var highFilter = ''
+      if (query.length > 2) {
+        var first = query.charAt(0)
+        var second = query.charAt(1)
+        if (first === ' ') {
+          highFilter = 'F'
+          if (second === ' ') {
+            highFilter = 'f'
+          }
+        }
+      }
+      query = query.trim()
+
       // 处理条件搜索关键字
-      // 获取第二个字符
-      var key = query.charAt(1)
+      var keyIndex = query.indexOf(this.setting.data.searchKey)
       var keyWord = ''
-      // 判断第二个字符是否为 :
-      if (key && key === ':') {
-        // 获取第一个字符
-        keyWord = query.charAt(0)
-        // 截取 : 后的目标搜索文本
-        query = query.substring(2, query.length)
+      if (keyIndex > 0) {
+        keyWord = query.substring(0, keyIndex)
+        query = query.substring(keyIndex + 1, query.length)
+      }
+
+      // 如果搜索的关键字还是为空
+      if (query.trim() === '') {
+        this.$message.info('搜索词为空')
+        this.reset()
+        return
       }
 
       // 判断当前配置中设置的搜索起始目录
@@ -435,10 +568,15 @@ export default {
       // 判断当前配置设置的搜索模式
       var isOnlyName = !this.setting.data.isFindFileContent
       // 搜索
-      window.find(query, isOnlyName, dir, result => {
+      window.find(query.trim(), isOnlyName, dir, result => {
         if (this.$refs.xTable) {
           // 处理搜索结果
-          this.tableData = Handler.handle(result, keyWord)
+          this.tableData = Handler.handle(
+            result,
+            highFilter,
+            keyWord,
+            Tools.generateListToMap(this.setting.data.keyList, 'key', 'regex')
+          )
           this.tableData = Handler.sort(
             this.tableData,
             this.sort.field,
@@ -455,6 +593,50 @@ export default {
         this.loading = false
       })
     },
+    addKeySearch() {
+      this.$prompt('规则格式: 关键词&正则表达式', '添加快捷搜索规则', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /.+&.+/,
+        inputErrorMessage: '规则格式不正确'
+      }).then(({ value }) => {
+        console.log(value)
+        var separatorIndex = value.indexOf('&')
+        var key = value.substring(0, separatorIndex)
+        var regex = value.substring(separatorIndex + 1)
+        this.setting.data.keyList.push({
+          key: key,
+          regex: regex
+        })
+      })
+    },
+    removeKeySearch(row) {
+      this.$confirm('确认删除快捷搜索' + row.key, '不可恢复', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        var index = this.findIndexInSearchKeyList(row.key)
+        console.log(index)
+        if (index > -1) {
+          this.setting.data.keyList.splice(index, 1)
+        }
+        console.log(this.setting.data.keyList)
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+      })
+    },
+    findIndexInSearchKeyList(key) {
+      var list = this.setting.data.keyList
+      for (var i = 0; i < list.length; i++) {
+        if (key === list[i].key) {
+          return i
+        }
+      }
+      return -1
+    },
     expendPanel(size) {
       // 如果结果条数为0, 收起面板
       if (size < 1) {
@@ -469,6 +651,33 @@ export default {
       this.footerPosition = height
       utools.setExpendHeight(height + 40)
     },
+    copyToClipBoard(text) {
+      window.writeToClipboard(text)
+    },
+    numberFix(number, fixed) {
+      return number.toFixed(fixed)
+    },
+    loadDetail() {
+      this.detailDrawer.item = this.$refs.xTable.getCurrentRow()
+      if (this.detailDrawer.item.type === 'public.folder') {
+        this.detailDrawer.item.preview = 'folder'
+        window.readFileList(this.detailDrawer.item.path, data => {
+          this.detailDrawer.item.files = data
+        })
+        return
+      }
+      var extension = Tools.getExtension(this.detailDrawer.item.name)
+      this.detailDrawer.item.preview = Constant.typeMap()[extension]
+      if (
+        this.detailDrawer.item.preview &&
+        this.detailDrawer.item.preview === 'text'
+      ) {
+        window.readTextFile(this.detailDrawer.item.path, data => {
+          var encode = CharDetect.detect(data)
+          this.detailDrawer.item.text = IconvLite.decode(data, encode)
+        })
+      }
+    },
     // 键盘事件
     keyDownEvent(event) {
       // 获取当前按下的键
@@ -478,8 +687,15 @@ export default {
         // 开启加载中进度条
         this.loading = true
         // 执行搜索
-        this.search(this.query.trim())
-        this.tableFocus = true
+        this.search(this.query)
+        window.focus()
+      }
+      // 空格键
+      else if (keyCode === 32) {
+        if (!this.detailDrawer.drawerOpen) {
+          this.loadDetail()
+        }
+        this.detailDrawer.drawerOpen = !this.detailDrawer.drawerOpen
       }
       // 左方向键
       else if (keyCode === 37) {
@@ -490,14 +706,6 @@ export default {
       }
       // 右方向键
       else if (keyCode === 39) {
-        // 打开详情页
-        if (!this.detailDrawer.drawerOpen) {
-          this.detailDrawer.item = this.$refs.xTable.getCurrentRow()
-          this.detailDrawer.drawerOpen = true
-          return
-        }
-        // 关闭详情页
-        this.detailDrawer.drawerOpen = false
         // 获取当前高亮的结果
         var row = this.$refs.xTable.getCurrentRow()
         // 使用默认方式打开
@@ -505,7 +713,14 @@ export default {
       }
       // ESC 键
       else if (keyCode === 27) {
-        // event.stopPropagation()
+        var isFocused = window.isfocus()
+        if (isFocused) {
+          if (this.detailDrawer.drawerOpen) {
+            this.detailDrawer.drawerOpen = false
+          }
+          utools.setSubInputValue(this.query)
+          event.stopPropagation()
+        }
       }
     },
     // 表格快捷菜单点击事件
@@ -532,11 +747,10 @@ export default {
           break
       }
     },
-    copyToClipBoard(text) {
-      window.writeToClipboard(text)
-    },
-    numberFix(number, fixed) {
-      return number.toFixed(fixed)
+    currentChangeEvent({ row }) {
+      if (this.detailDrawer.drawerOpen) {
+        this.detailDrawer.item = row
+      }
     },
     sortChangeEvent(value) {
       this.loading = true
@@ -561,6 +775,10 @@ export default {
     cellDClickEvent({ row }) {
       // 直接打开
       window.openDirectly(row.path)
+    },
+    detailFolderTableDbClickEvent(row, column, event) {
+      console.log(row)
+      window.openDirectly(this.detailDrawer.item.path + '/' + row.name)
     },
     // 抽屉打开事件
     settingDrawerOpenEvent() {},
@@ -609,7 +827,13 @@ export default {
   height: 33px;
   padding-right: 10px;
 }
+.name {
+  color: #000000c4;
+  cursor: default;
+  user-select: none;
+}
 .path {
+  color: #a0a0a0;
   cursor: default;
   user-select: none;
 }
