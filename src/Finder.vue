@@ -46,13 +46,13 @@
           style="padding-left: 15px"
         >
           <el-button
-            @click="settingDrawer.drawerOpen = true"
+            @click="settingDrawer.open = true"
             class="setting-button"
             icon="el-icon-s-tools"
             type="text"
           >设置</el-button>
           <el-button
-            @click="tipDrawer.drawerOpen = true"
+            @click="tipDrawer.open = true"
             class="tip-button"
             icon="el-icon-info"
             type="text"
@@ -93,10 +93,10 @@
     </div>
     <el-drawer
       :before-close="settingDrawerCloseEvent"
-      :direction="settingDrawer.drawerDirection"
+      :direction="settingDrawer.direction"
       :show-close="false"
       :size="'350px'"
-      :visible.sync="settingDrawer.drawerOpen"
+      :visible.sync="settingDrawer.open"
       @open="settingDrawerOpenEvent"
     >
       <div
@@ -184,10 +184,10 @@
       </div>
     </el-drawer>
     <el-drawer
-      :direction="tipDrawer.drawerDirection"
+      :direction="tipDrawer.direction"
       :show-close="false"
       :size="'350px'"
-      :visible.sync="tipDrawer.drawerOpen"
+      :visible.sync="tipDrawer.open"
     >
       <div
         class="clearfix"
@@ -195,45 +195,13 @@
       >
         <span class="drawer-header">提示 Tips</span>
       </div>
-      <div id="tip">
-        <el-card body-style="{padding: 10px}">
-          <div
-            class="clearfix"
-            slot="header"
-          >
-            <b>基本操作</b>
-          </div>
-          <el-table
-            :data="tips.base"
-            style="width: 100%"
-          >
-            <el-table-column
-              label="操作"
-              prop="name"
-            ></el-table-column>
-            <el-table-column
-              label="说明"
-              prop="description"
-            ></el-table-column>
-          </el-table>
-        </el-card>
-        <el-card body-style="{padding: 10px}">
-          <div
-            class="clearfix"
-            slot="header"
-          >
-            <b>快捷搜索</b>
-          </div>
-          <p>快捷搜索即对结果类型进行简单过滤, 使用方法为在搜索时加上前缀: 'key:搜索文本'</p>
-          <p>详细使用见插件主页: <a href="https://yuanliao.info/d/595/13">https://yuanliao.info/d/595/13</a></p>
-        </el-card>
-      </div>
+      <tips />
     </el-drawer>
     <el-drawer
-      :direction="detailDrawer.drawerDirection"
+      :direction="detailDrawer.direction"
       :show-close="false"
       :size="'400px'"
-      :visible.sync="detailDrawer.drawerOpen"
+      :visible.sync="detailDrawer.open"
     >
       <div
         class="clearfix"
@@ -361,8 +329,14 @@ import Tools from './tools'
 import IconvLite from 'iconv-lite'
 import CharDetect from 'chardet'
 
+import Tips from './components/Tips'
+
 export default {
   name: 'finder',
+  components: {
+    'tips': Tips,
+    'settings': Settings
+  },
   data() {
     return {
       tableData: [],
@@ -399,16 +373,16 @@ export default {
       ],
       query: '',
       settingDrawer: {
-        drawerOpen: false,
-        drawerDirection: 'ltr'
+        open: false,
+        direction: 'ltr'
       },
       tipDrawer: {
-        drawerOpen: false,
-        drawerDirection: 'ltr'
+        open: false,
+        direction: 'ltr'
       },
       detailDrawer: {
-        drawerOpen: false,
-        drawerDirection: 'rtl',
+        open: false,
+        direction: 'rtl',
         item: {}
       },
       setting: {
@@ -431,30 +405,6 @@ export default {
       sort: {
         field: 'name',
         type: -1
-      },
-      tips: {
-        base: [
-          {
-            name: 'Enter(回车)',
-            description: '搜索'
-          },
-          {
-            name: 'Space (空格)',
-            description: '预览'
-          },
-          {
-            name: '→ (右方向键)',
-            description: '默认方式打开'
-          },
-          {
-            name: '鼠标双击',
-            description: '默认方式打开'
-          },
-          {
-            name: '鼠标右键',
-            description: '快捷菜单'
-          }
-        ]
       }
     }
   },
@@ -693,15 +643,15 @@ export default {
         if (this.tableData.length === 0) {
           return
         }
-        if (!this.detailDrawer.drawerOpen) {
+        if (!this.detailDrawer.open) {
           this.loadDetail()
         }
-        this.detailDrawer.drawerOpen = !this.detailDrawer.drawerOpen
+        this.detailDrawer.open = !this.detailDrawer.open
       }
       // 左方向键
       else if (keyCode === 37) {
-        if (this.detailDrawer.drawerOpen) {
-          this.detailDrawer.drawerOpen = false
+        if (this.detailDrawer.open) {
+          this.detailDrawer.open = false
           return
         }
       }
@@ -716,8 +666,8 @@ export default {
       else if (keyCode === 27) {
         var isFocused = window.isfocus()
         if (isFocused) {
-          if (this.detailDrawer.drawerOpen) {
-            this.detailDrawer.drawerOpen = false
+          if (this.detailDrawer.open) {
+            this.detailDrawer.open = false
           }
           utools.setSubInputValue(this.query)
           event.stopPropagation()
@@ -732,7 +682,7 @@ export default {
       switch (code) {
         case 'detail':
           this.detailDrawer.item = row
-          this.detailDrawer.drawerOpen = true
+          this.detailDrawer.open = true
           break
         case 'open':
           window.openDirectly(path)
@@ -749,7 +699,7 @@ export default {
       }
     },
     currentChangeEvent({ row }) {
-      if (this.detailDrawer.drawerOpen) {
+      if (this.detailDrawer.open) {
         this.detailDrawer.item = row
       }
     },
@@ -844,7 +794,6 @@ export default {
 .setting-form {
   padding-left: 20px;
 }
-#tip .el-card,
 #setting .el-card,
 #detail .el-card {
   margin: 10px;
