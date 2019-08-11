@@ -12,6 +12,6 @@ export default {
       ico: this.picture,
       gif: this.picture,
       txt: this.text
-    }
+    };
   }
-}
+};

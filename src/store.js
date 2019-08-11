@@ -20,16 +20,32 @@ const store = new Vuex.Store({
   },
   getters: {
     settings: state => {
-      var result = utools.db.get(state.settings._id);
-      if (result.error) {
-        return state.settings;
+      console.log("setting getter");
+      var settings = state.settings;
+      if (settings._rev === "") {
+        console.log("rev is empty");
+        var result = utools.db.get(settings._id);
+        console.log("db result:", result);
+        if (result._rev) {
+          settings = result;
+          store.commit("updateSettings", settings);
+        }
       }
-      return result;
+      return settings;
     }
   },
   mutations: {
+    updateSettings(state, settings) {
+      console.log("update settings", settings);
+      state.settings = settings;
+    },
     updateSettingsRev(state, rev) {
+      console.log("update rev:", rev);
       state.settings._rev = rev;
+    },
+    updateSettingsKeyList(state, keyList) {
+      console.log("update keyList:", keyList);
+      state.settings.data.keyList = keyList;
     }
   }
 });

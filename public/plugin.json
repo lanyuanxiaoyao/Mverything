@@ -15,6 +15,23 @@
   "features": [{
     "code": "find",
     "explain": "查找 Mac 上的文件",
-    "cmds": ["find", "查找"]
+    "cmds": [
+      "find",
+      "查找",
+      {
+        "type": "files",
+        "label": "在此文件夹中搜索",
+        "fileType": "directory",
+        "minNum": 1,
+        "maxNum": 1
+      },
+      {
+        "type": "window",
+        "label": "在此文件夹中搜索",
+        "match": {
+          "bundleId": "com.apple.finder"
+        }
+      }
+    ]
   }]
 }
