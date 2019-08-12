@@ -15,7 +15,7 @@
     "node-spotlight": "^0.1.3",
     "vue": "^2.6.10",
     "vuex": "^3.1.1",
-    "vxe-table": "^2.0.14",
+    "vxe-table": "^2.1.4",
     "xe-utils": "^1.9.7"
   },
   "devDependencies": {

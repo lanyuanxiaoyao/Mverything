@@ -127,7 +127,7 @@
     <!-- 详情界面 -->
     <el-drawer
       :direction="detailDrawer.direction"
-      :show-close="false"
+      :modal="false"
       :size="'400px'"
       :visible.sync="detailDrawer.open"
       @open="detailDrawerOpenEvent"
@@ -346,13 +346,30 @@ export default {
   },
   methods: {
     initial(code, type, payload) {
-      console.log(code, type, payload)
+      const h = this.$createElement
       if (type === 'files') {
         this.$notify({
           title: '当前搜索路径',
-          message: payload[0].path
+          message: h(
+            'code',
+            { style: 'word-break: break-all' },
+            payload[0].path
+          )
         })
         this.tempDir = payload[0].path
+      } else if (type === 'window') {
+        window.getCurrentFinderPath(result => {
+          result = result.trim()
+          var lastChar = result.charAt(result.length - 1)
+          if (lastChar === '/') {
+            result = result.substring(0, result.length - 1)
+          }
+          this.$notify({
+            title: '当前搜索路径',
+            message: h('code', { style: 'word-break: break-all' }, result)
+          })
+          this.tempDir = result
+        })
       }
       // 初始化找到用户目录
       this.homeDir = utools.getPath('home')
@@ -530,7 +547,9 @@ export default {
           break
       }
     },
-    currentChangeEvent({ row }) {},
+    currentChangeEvent({ row }) {
+      this.loadData(row)
+    },
     sortChangeEvent(value) {
       this.loading = true
       this.tableData = Handler.sort(
@@ -597,9 +616,7 @@ export default {
       window.openDirectly(this.item.path + '/' + row.name)
     },
     detailDrawerOpenEvent() {
-      console.log('detail open')
       var item = this.$refs.xTable.getCurrentRow()
-      console.log(item)
       this.loadData(item)
     }
   }

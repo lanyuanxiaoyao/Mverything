@@ -243,6 +243,24 @@ var r=n(20),i=n(21),o=n(8);function s(){return u.TYPED_ARRAY_SUPPORT?2147483647:
       });
   };
 
+  window.getCurrentFinderPath = callback => {
+    new Promise((resolve, reject) => {
+      node_child.exec(`osascript -e 'tell application "Finder" to get the POSIX path of (target of front window as alias)'`, (error, stdout, stderr) => {
+        if (error) {
+          reject(stderr)
+        }
+        resolve(stdout)
+      });
+    })
+    .then(result => {
+      callback(result);
+    })
+    .catch(error => {
+      console.log(error)
+      callback([]);
+    });
+  }
+
   window.openInFinder = path => shell.showItemInFolder(path);
   window.openDirectly = path => shell.openItem(path);
   window.openExternal = path => shell.openExternal(path);
