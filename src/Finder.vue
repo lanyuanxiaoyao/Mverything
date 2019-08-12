@@ -127,7 +127,7 @@
     <!-- 详情界面 -->
     <el-drawer
       :direction="detailDrawer.direction"
-      :modal="false"
+      :show-close="false"
       :size="'400px'"
       :visible.sync="detailDrawer.open"
       @open="detailDrawerOpenEvent"
@@ -326,6 +326,11 @@ export default {
     settings: 'settings'
   }),
   mounted() {
+    utools.onPluginReady(() => {
+      console.log('onPluginReady')
+      var newSettings = Tools.databaseUpdate(this.settings)
+      this.$store.commit('updateSettings', newSettings)
+    })
     utools.onPluginEnter(({ code, type, payload }) => {
       // 初始化
       this.initial(code, type, payload)
@@ -598,7 +603,12 @@ export default {
         return
       }
       var extension = Tools.getExtension(this.item.name)
-      this.item.preview = Constant.typeMap()[extension]
+      if (this.settings.data.fileExtension.indexOf(extension) > -1) {
+        this.item.preview = 'text'
+      } else if (this.settings.data.pictureExtension.indexOf(extension) > -1) {
+        this.item.preview = 'picture'
+      }
+
       if (
         this.item.type === 'public.plain-text' ||
         (this.item.preview && this.item.preview === 'text')

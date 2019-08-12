@@ -1,9 +1,12 @@
 <template>
   <div>
-    <el-card
-      body-style="{padding: 5px}"
-      header="基本设置"
-    >
+    <el-card body-style="{padding: 5px}">
+      <div
+        class="clearfix"
+        slot="header"
+      >
+        <b>基本</b>
+      </div>
       <el-form
         class="setting-form"
         label-position="top"
@@ -31,7 +34,7 @@
         class="clearfix"
         slot="header"
       >
-        <span>快捷搜索</span>
+        <b>快捷搜索</b>
         <el-button
           @click="addKeySearch"
           style="float: right; padding: 3px 0"
@@ -75,14 +78,50 @@
         </el-table-column>
       </el-table>
     </el-card>
+    <el-card body-style="{padding: 5px}">
+      <div
+        class="clearfix"
+        slot="header"
+      >
+        <b>预览</b>
+        <el-popover
+          placement="top"
+          title="说明"
+          trigger="hover"
+          width="350"
+        >
+          <i
+            class="el-icon-info"
+            slot="reference"
+            style="float: right; padding: 3px 0"
+          ></i>
+          <div>
+            很多文本文件(如代码)在 macOS 中并不会被识别为同一个类型, 基于此插件决定把后缀名交由用户决定, 将自己常用的文本文件定义为在这里, 即可对其进行预览, 图片亦是如此
+            <b>(注: 图片格式需谷歌浏览器图片标签原生支持, 否则无法显示)</b>.
+          </div>
+        </el-popover>
+      </div>
+      <el-form
+        class="preview-form"
+        label-position="top"
+        ref="previewForm"
+      >
+        <el-form-item label="文本文件后缀名">
+          <el-input v-model="settings.data.fileExtension" placeholder="文本文件后缀名"></el-input>
+        </el-form-item>
+        <el-form-item label="图片文件后缀名">
+          <el-input v-model="settings.data.pictureExtension" placeholder="图片文件后缀名"></el-input>
+        </el-form-item>
+      </el-form>
+    </el-card>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import Tools from '../tools'
 
 export default {
-  mounted() {},
   computed: mapGetters({
     settings: 'settings'
   }),
@@ -128,7 +167,7 @@ export default {
           key: key,
           regex: regex
         }
-        var index = this.findIndexInSearchKeyList(keyList, keySearch.key)
+        var index = Tools.findIndexInList(keyList, keySearch.key, 'key')
         if (index > -1) {
           this.$confirm(
             '发现重复的关键词: ' + keySearch.key + ' , 是否要覆盖 ?',
@@ -155,7 +194,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        var index = this.findIndexInSearchKeyList(keyList, row.key)
+        var index = Tools.findIndexInList(keyList, row.key, 'key')
         if (index > -1) {
           keyList.splice(index, 1)
         }
@@ -165,14 +204,6 @@ export default {
           message: '删除成功!'
         })
       })
-    },
-    findIndexInSearchKeyList(keyList, key) {
-      for (var i = 0; i < keyList.length; i++) {
-        if (key === keyList[i].key) {
-          return i
-        }
-      }
-      return -1
     }
   }
 }

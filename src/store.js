@@ -2,6 +2,7 @@
 /* eslint-disable no-undef */
 import Vue from "vue";
 import Vuex from "vuex";
+import Tools from "./tools";
 
 Vue.use(Vuex);
 
@@ -10,10 +11,13 @@ const store = new Vuex.Store({
     settings: {
       _id: "Mverything-setting",
       data: {
+        databaseVersion: 1,
         isFindFileContent: false,
         searchRoot: "user",
         searchKey: ":",
-        keyList: []
+        keyList: [],
+        fileExtension: "txt,java,py,c,cpp,html,css,vue",
+        pictureExtension: "png,jpg,jpeg,bmp,svg,ico"
       },
       _rev: ""
     }
@@ -26,7 +30,7 @@ const store = new Vuex.Store({
         console.log("rev is empty");
         var result = utools.db.get(settings._id);
         console.log("db result:", result);
-        if (result._rev) {
+        if (result) {
           settings = result;
           store.commit("updateSettings", settings);
         }
