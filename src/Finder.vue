@@ -359,7 +359,8 @@ export default {
             'code',
             { style: 'word-break: break-all' },
             payload[0].path
-          )
+          ),
+          duration: 0
         })
         this.tempDir = payload[0].path
       } else if (type === 'window') {
@@ -371,7 +372,8 @@ export default {
           }
           this.$notify({
             title: '当前搜索路径',
-            message: h('code', { style: 'word-break: break-all' }, result)
+            message: h('code', { style: 'word-break: break-all' }, result),
+            duration: 0
           })
           this.tempDir = result
         })
@@ -603,9 +605,10 @@ export default {
         return
       }
       var extension = Tools.getExtension(this.item.name)
-      if (this.settings.data.fileExtension.indexOf(extension) > -1) {
+      console.log(extension)
+      if (extension && this.settings.data.fileExtension.indexOf(extension) > -1) {
         this.item.preview = 'text'
-      } else if (this.settings.data.pictureExtension.indexOf(extension) > -1) {
+      } else if (extension && this.settings.data.pictureExtension.indexOf(extension) > -1) {
         this.item.preview = 'picture'
       }
 

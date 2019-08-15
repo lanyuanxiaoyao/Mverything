@@ -107,10 +107,16 @@
         ref="previewForm"
       >
         <el-form-item label="文本文件后缀名">
-          <el-input v-model="settings.data.fileExtension" placeholder="文本文件后缀名"></el-input>
+          <el-input
+            placeholder="文本文件后缀名"
+            v-model="settings.data.fileExtension"
+          ></el-input>
         </el-form-item>
         <el-form-item label="图片文件后缀名">
-          <el-input v-model="settings.data.pictureExtension" placeholder="图片文件后缀名"></el-input>
+          <el-input
+            placeholder="图片文件后缀名"
+            v-model="settings.data.pictureExtension"
+          ></el-input>
         </el-form-item>
       </el-form>
     </el-card>
@@ -149,8 +155,8 @@ export default {
         }
         // 更新_rev
         this.$store.commit('updateSettingsRev', result.rev)
-        return true
       }
+      return true
     },
     addKeySearch() {
       var keyList = this.settings.data.keyList
