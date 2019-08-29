@@ -135,8 +135,10 @@
       :direction="detailDrawer.direction"
       :show-close="false"
       :size="'400px'"
+      :modal="false"
       :visible.sync="detailDrawer.open"
       @open="detailDrawerOpenEvent"
+      style="pointer-events: none"
     >
       <div
         class="clearfix"
