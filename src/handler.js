@@ -2,9 +2,9 @@
 import icons from "./icon";
 export default {
   handle(items, highFilter, keyWord, keyMap) {
-    console.log(highFilter, keyWord)
+    console.log(highFilter, keyWord);
 
-    if (highFilter !== '') {
+    if (highFilter !== "") {
       switch (highFilter) {
         // file
         case "f":
@@ -12,7 +12,7 @@ export default {
             item => item.kMDItemContentType !== "public.folder"
           );
           break;
-          // folder
+        // folder
         case "F":
           items = items.filter(
             item => item.kMDItemContentType === "public.folder"
@@ -21,11 +21,9 @@ export default {
     }
 
     if (keyWord !== "") {
-      var regex = keyMap[keyWord]
+      var regex = keyMap[keyWord];
       if (regex) {
-        items = items.filter(
-          item => item.path.search(keyMap[keyWord]) > 0
-        );
+        items = items.filter(item => item.path.search(keyMap[keyWord]) > 0);
       }
     }
 

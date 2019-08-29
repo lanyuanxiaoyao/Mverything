@@ -27,6 +27,9 @@
             ></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="是否使用原生预览">
+          <el-switch v-model="settings.data.preview.native"></el-switch>
+        </el-form-item>
       </el-form>
     </el-card>
     <el-card body-style="{padding: 5px}">
@@ -131,6 +134,9 @@ export default {
   computed: mapGetters({
     settings: 'settings'
   }),
+  mounted() {
+    console.log(this.settings)
+  },
   methods: {
     save() {
       // 判断设置中的_rev是否为空

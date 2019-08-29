@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import Tools from './tools'
+import Tools from "./tools";
 
 export default {
   icons() {

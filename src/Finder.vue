@@ -42,24 +42,29 @@
         type="flex"
       >
         <el-col
-          :span="4"
-          style="padding-left: 15px"
+          :span="6"
+          style="padding-left: 15px;text-align: left"
         >
-          <el-button
+          <div
             @click="settingDrawer.open = true"
             class="setting-button"
             icon="el-icon-s-tools"
+            ref="settingButton"
             type="text"
-          >设置</el-button>
-          <el-button
+          >
+            <i class="el-icon-s-tools"></i> 设置
+          </div>
+          <div
             @click="tipDrawer.open = true"
             class="tip-button"
             icon="el-icon-info"
+            ref="tipButton"
             type="text"
-          >提示</el-button>
+          >
+            <i class="el-icon-info"></i> 提示
+          </div>
         </el-col>
-        <el-col :span="1"></el-col>
-        <el-col :span="15">
+        <el-col :span="12">
           <el-radio-group
             @change="sortChangeEvent"
             class="radio-group"
@@ -77,16 +82,17 @@
             class="radio-group"
             size="mini"
             v-model="sort.type"
+            style="margin-left: 10px"
           >
-            <el-radio-button label="1">
-              <i class="el-icon-sort-down"></i>
-            </el-radio-button>
             <el-radio-button label="-1">
               <i class="el-icon-sort-up"></i>
             </el-radio-button>
+            <el-radio-button label="1">
+              <i class="el-icon-sort-down"></i>
+            </el-radio-button>
           </el-radio-group>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="6">
           <div id="total">共搜索到 {{ tableData.length }} 条</div>
         </el-col>
       </el-row>
@@ -155,11 +161,15 @@
                 prop="name"
               ></el-table-column>
             </el-table>
-            <img
-              :src="item.path"
+            <div
+              style="text-align: center"
               v-else-if="item.preview === 'picture'"
-              width="100%"
-            />
+            >
+              <img
+                :src="item.path"
+                style="max-width: 100%"
+              />
+            </div>
             <div v-else-if="item.preview === 'text'">
               <el-alert
                 show-icon
@@ -175,7 +185,14 @@
                 v-model="item.text"
               ></el-input>
             </div>
-            <span v-else>暂无预览</span>
+            <span
+              @click="nativePreview(item.path)"
+              style="cursor: pointer"
+              v-else
+            >
+              暂无预览, 使用
+              <span style="font-weight: bold;padding-right: 3px">quick look</span>查看
+            </span>
           </el-card>
           <el-card body-style="{padding: 5px}">
             <el-form
@@ -288,9 +305,13 @@ export default {
       tempDir: '',
       homeDir: '/',
       rootDir: '/',
+      preview: {
+        status: false,
+        start: 0
+      },
       sort: {
-        field: 'name',
-        type: -1
+        field: 'updateDate',
+        type: 1
       },
       menus: [
         [
@@ -338,16 +359,22 @@ export default {
         // 把输入更新到变量中
         this.query = text
       }, 'Enter 搜索, Space 预览, → 打开')
+
+      // 把上次搜索的关键字设置到输入框中
+      utools.setSubInputValue(this.query)
+      utools.subInputSelect()
     })
     utools.onPluginOut(() => {
       this.tempDir = ''
     })
     // 绑定键盘事件
     document.addEventListener('keydown', this.keyDownEvent)
+    document.addEventListener('keyup', this.keyUpEvent)
   },
   destroyed() {
     // 解绑键盘事件
     document.removeEventListener('keydown', this.keyDownEvent)
+    document.removeEventListener('keyup', this.keyUpEvent)
   },
   methods: {
     initial(code, type, payload) {
@@ -380,8 +407,6 @@ export default {
       }
       // 初始化找到用户目录
       this.homeDir = utools.getPath('home')
-      // 把上次搜索的关键字设置到输入框中
-      utools.setSubInputValue(this.query)
     },
     // 重置
     reset() {
@@ -495,17 +520,52 @@ export default {
         this.loading = true
         // 执行搜索
         this.search(this.query)
-        window.focus()
+        // window.focus()
+        utools.subInputBlur()
       }
       // 空格键
       else if (keyCode === 32) {
-        if (this.tableData.length === 0) {
+        if (
+          this.tableData.length === 0 ||
+          this.settingDrawer.open ||
+          this.tipDrawer.open
+        ) {
           return
         }
-        this.detailDrawer.open = !this.detailDrawer.open
+
+        this.preview.start = new Date().getTime()
+        if (this.settings.data.preview.native) {
+          this.nativePreview(this.$refs.xTable.getCurrentRow().path)
+        } else {
+          this.detailDrawer.open = !this.detailDrawer.open
+        }
+        this.preview.status = !this.preview.status
+        event.stopPropagation()
       }
+      // ESC 键
+      else if (keyCode === 27) {
+        var isFocused = window.isfocus()
+        if (isFocused) {
+          if (
+            this.detailDrawer.open ||
+            this.settingDrawer.open ||
+            this.tipDrawer.open
+          ) {
+            this.detailDrawer.open = false
+            this.settingDrawer.open = false
+            this.tipDrawer.open = false
+          } else {
+            utools.subInputSelect()
+          }
+          event.stopPropagation()
+        }
+      }
+    },
+    keyUpEvent(event) {
+      // 获取当前按下的键
+      var keyCode = window.event ? event.keyCode : event.which
       // 左方向键
-      else if (keyCode === 37) {
+      if (keyCode === 37) {
         if (this.detailDrawer.open) {
           this.detailDrawer.open = false
           return
@@ -517,17 +577,6 @@ export default {
         var row = this.$refs.xTable.getCurrentRow()
         // 使用默认方式打开
         window.openDirectly(row.path)
-      }
-      // ESC 键
-      else if (keyCode === 27) {
-        var isFocused = window.isfocus()
-        if (isFocused) {
-          if (this.detailDrawer.open) {
-            this.detailDrawer.open = false
-          }
-          utools.setSubInputValue(this.query)
-          event.stopPropagation()
-        }
       }
     },
     // 表格快捷菜单点击事件
@@ -591,6 +640,9 @@ export default {
         this.$message.error('配置保存失败')
       }
     },
+    nativePreview(path) {
+      window.preview(path)
+    },
     loadData(item) {
       console.log('load detail:', item)
       if (item.path === this.item.path) {
@@ -606,9 +658,15 @@ export default {
       }
       var extension = Tools.getExtension(this.item.name)
       console.log(extension)
-      if (extension && this.settings.data.fileExtension.indexOf(extension) > -1) {
+      if (
+        extension &&
+        this.settings.data.fileExtension.indexOf(extension) > -1
+      ) {
         this.item.preview = 'text'
-      } else if (extension && this.settings.data.pictureExtension.indexOf(extension) > -1) {
+      } else if (
+        extension &&
+        this.settings.data.pictureExtension.indexOf(extension) > -1
+      ) {
         this.item.preview = 'picture'
       }
 
@@ -631,6 +689,9 @@ export default {
     detailDrawerOpenEvent() {
       var item = this.$refs.xTable.getCurrentRow()
       this.loadData(item)
+    },
+    test() {
+      console.log('hello')
     }
   }
 }
@@ -678,6 +739,18 @@ export default {
 }
 .wrap {
   word-break: break-all;
+}
+.setting-button,
+.tip-button {
+  display: inline-block;
+  margin-left: 10px;
+  margin-right: 10px;
+  cursor: pointer;
+  color: #808080;
+}
+.el-col {
+  padding-top: 5px;
+  text-align: center;
 }
 </style>
 <style>

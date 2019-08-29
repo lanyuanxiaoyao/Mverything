@@ -15,8 +15,11 @@ const store = new Vuex.Store({
         isFindFileContent: false,
         searchRoot: "user",
         searchKey: ":",
+        preview: {
+          native: false
+        },
         keyList: [],
-        fileExtension: "txt,java,py,c,cpp,html,css,vue",
+        fileExtension: "txt,md,markdown,json,xml,java,py,c,cpp,html,css,vue",
         pictureExtension: "png,jpg,jpeg,bmp,svg,ico"
       },
       _rev: ""

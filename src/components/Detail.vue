@@ -36,7 +36,9 @@
             v-model="item.text"
           ></el-input>
         </div>
-        <span v-else>暂无预览</span>
+        <span v-else>
+          <el-button type="text">暂无预览, 使用 quick look 查看</el-button>
+        </span>
       </el-card>
       <el-card body-style="{padding: 5px}">
         <el-form

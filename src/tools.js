@@ -25,10 +25,16 @@ export default {
   },
   databaseUpdate(settings) {
     console.log("database update before:", settings);
-    if (!settings["databaseVersion"] || settings["databaseVersion"] < 1) {
-      settings["databaseVersion"] = 1;
-      settings["fileExtension"] = "txt,java,py,c,cpp,html,css,vue";
-      settings["pictureExtension"] = "png,jpg,jpeg,bmp,svg,ico";
+    if (!settings["data"]["databaseVersion"] || settings["data"]["databaseVersion"] < 1) {
+      settings["data"]["databaseVersion"] = 1;
+      settings["data"]["fileExtension"] = "txt,java,py,c,cpp,html,css,vue";
+      settings["data"]["pictureExtension"] = "png,jpg,jpeg,bmp,svg,ico";
+    }
+    if (!settings["data"]["databaseVersion"] || settings["data"]["databaseVersion"] < 2) {
+      settings["data"]["databaseVersion"] = 2;
+      settings["data"]["preview"] = {
+        native: false
+      }
     }
     console.log("database update finish:", settings);
     return settings;
