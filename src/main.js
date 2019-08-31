@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Finder from "./Finder.vue";
+import "xe-utils";
 import VXETable from "vxe-table";
 import "vxe-table/lib/index.css";
 import ElementUI from "element-ui";
@@ -13,7 +14,9 @@ Vue.use(ElementUI);
 Vue.config.productionTip = false;
 
 Vue.directive("focus", {
-  update: (el, { value }) => {
+  update: (el, {
+    value
+  }) => {
     if (value) {
       el.focus();
     }

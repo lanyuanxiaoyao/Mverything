@@ -43,12 +43,24 @@ export default {
     return {
       base: [
         {
-          name: 'Enter(回车)',
+          name: 'Enter (回车)',
           description: '搜索'
         },
         {
           name: 'Space (空格)',
           description: '预览'
+        },
+        {
+          name: 'Esc',
+          description: '退出当前状态'
+        },
+        {
+          name: 'delete',
+          description: '删除当前文件'
+        },
+        {
+          name: 'c (键盘C键)',
+          description: '复制文件'
         },
         {
           name: '→ (右方向键)',

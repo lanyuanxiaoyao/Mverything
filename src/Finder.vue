@@ -16,6 +16,7 @@
       ref="xTable"
       resizable
       show-overflow
+      size="medium"
       tabindex="0"
     >
       <vxe-table-column
@@ -81,14 +82,14 @@
             @change="sortChangeEvent"
             class="radio-group"
             size="mini"
-            v-model="sort.type"
             style="margin-left: 10px"
+            v-model="sort.type"
           >
             <el-radio-button label="-1">
-              <i class="el-icon-sort-up"></i>
+              <i class="el-icon-top"></i>
             </el-radio-button>
             <el-radio-button label="1">
-              <i class="el-icon-sort-down"></i>
+              <i class="el-icon-bottom"></i>
             </el-radio-button>
           </el-radio-group>
         </el-col>
@@ -131,138 +132,165 @@
     </el-drawer>
 
     <!-- 详情界面 -->
-    <el-drawer
-      :direction="detailDrawer.direction"
-      :show-close="false"
-      :size="'400px'"
-      :modal="false"
-      :visible.sync="detailDrawer.open"
-      @open="detailDrawerOpenEvent"
-      style="pointer-events: none"
-    >
-      <div
-        class="clearfix"
-        slot="title"
+    <div class="detail-drawer">
+      <el-drawer
+        :append-to-body="false"
+        :direction="detailDrawer.direction"
+        :modal="false"
+        :modal-append-to-body="false"
+        :show-close="false"
+        :size="'400px'"
+        :visible.sync="detailDrawer.open"
+        @open="detailDrawerOpenEvent"
+        custom-class="detail-body"
       >
-        <span class="drawer-header">文件详情 Detail</span>
-      </div>
-      <div id="detail">
-        <div id="detail">
-          <el-card body-style="{padding: 2px}">
-            <el-table
-              :data="item.files"
-              :max-height="400"
-              @row-dblclick="detailFolderTableDbClickEvent"
-              empty-text="文件夹为空"
-              size="mini"
-              stripe
-              v-if="item.preview === 'folder'"
-            >
-              <el-table-column
-                label="文件名"
-                prop="name"
-              ></el-table-column>
-            </el-table>
-            <div
-              style="text-align: center"
-              v-else-if="item.preview === 'picture'"
-            >
-              <img
-                :src="item.path"
-                style="max-width: 100%"
-              />
-            </div>
-            <div v-else-if="item.preview === 'text'">
-              <el-alert
-                show-icon
-                style="margin-bottom: 5px"
-                title="仅提供部分文本内容预览"
-                type="warning"
-              ></el-alert>
-              <el-input
-                :autosize="{ minRows: 1, maxRows: 20 }"
-                readonly
-                resize="none"
-                type="textarea"
-                v-model="item.text"
-              ></el-input>
-            </div>
-            <span
-              @click="nativePreview(item.path)"
-              style="cursor: pointer"
-              v-else
-            >
-              暂无预览, 使用
-              <span style="font-weight: bold;padding-right: 3px">quick look</span>查看
-            </span>
-          </el-card>
-          <el-card body-style="{padding: 5px}">
-            <el-form
-              :show-message="false"
-              label-position="left"
-              label-width="70px"
-              size="mini"
-            >
-              <el-form-item label="文件名">
-                <div class="wrap">
-                  {{ item.name }}
-                  <el-button
-                    @click="copyToClipBoard(item.name)"
-                    type="text"
-                  >复制</el-button>
-                </div>
-              </el-form-item>
-              <el-form-item label="路径">
-                <div class="wrap">
-                  {{ item.path }}
-                  <el-button
-                    @click="copyToClipBoard(item.path)"
-                    type="text"
-                  >复制</el-button>
-                </div>
-              </el-form-item>
-              <el-form-item
-                label="大小"
-                v-show="item.size"
-              >
-                <span v-if="item.size > 1000000000">{{ numberFix(item.size / 1000000000, 2) }} GB</span>
-                <span v-else-if="item.size > 1000000">{{ numberFix(item.size / 1000000, 2) }} MB</span>
-                <span v-else-if="item.size > 1000">{{ numberFix(item.size / 1000, 2) }} KB</span>
-                <span v-else-if="item.size > 0">{{ item.size }} B</span>
-                <span v-else>无</span>
-              </el-form-item>
-              <el-form-item
-                label="子文件数"
-                v-show="item.count"
-              >{{ item.count }}</el-form-item>
-              <el-form-item label="类型">
-                <el-tooltip
-                  :enterable="false"
-                  placement="top"
-                >
-                  <div slot="content">{{ item.type }}</div>
-                  <span>{{ item.kind }}</span>
-                </el-tooltip>
-              </el-form-item>
-              <el-form-item label="创建时间">
-                <el-date-picker
-                  disabled
-                  type="datetime"
-                  v-model="item.createDate"
-                ></el-date-picker>
-              </el-form-item>
-              <el-form-item label="更新时间">
-                <el-date-picker
-                  disabled
-                  type="datetime"
-                  v-model="item.updateDate"
-                ></el-date-picker>
-              </el-form-item>
-            </el-form>
-          </el-card>
+        <div
+          class="clearfix"
+          slot="title"
+        >
+          <span class="drawer-header">文件详情 Detail</span>
         </div>
-      </div>
-    </el-drawer>
+        <div id="detail">
+          <div id="detail">
+            <el-card body-style="{padding: 2px}">
+              <el-table
+                :data="item.files"
+                :max-height="400"
+                @row-dblclick="detailFolderTableDbClickEvent"
+                empty-text="文件夹为空"
+                size="mini"
+                stripe
+                v-if="item.preview === 'folder'"
+              >
+                <el-table-column
+                  label="文件名 (双击可直接打开)"
+                  prop="name"
+                ></el-table-column>
+              </el-table>
+              <div
+                style="text-align: center"
+                v-else-if="item.preview === 'picture'"
+              >
+                <img
+                  :src="item.path"
+                  style="max-width: 100%"
+                />
+              </div>
+              <div v-else-if="item.preview === 'text'">
+                <el-alert
+                  show-icon
+                  style="margin-bottom: 5px"
+                  title="仅提供部分文本内容预览"
+                  type="warning"
+                ></el-alert>
+                <el-input
+                  :autosize="{ minRows: 1, maxRows: 20 }"
+                  readonly
+                  resize="none"
+                  type="textarea"
+                  v-model="item.text"
+                ></el-input>
+              </div>
+              <span
+                @click="nativePreview(item.path)"
+                style="cursor: pointer"
+                v-else
+              >
+                暂无预览, 使用
+                <span style="font-weight: bold;padding-right: 3px">quick look</span>查看
+              </span>
+            </el-card>
+            <el-card body-style="{padding: 5px}">
+              <el-form
+                :show-message="false"
+                label-position="left"
+                label-width="70px"
+                size="mini"
+              >
+                <el-form-item label="文件名">
+                  <div class="wrap">
+                    {{ item.name }}
+                    <el-button
+                      @click="copyTextToClipBoard(item.name)"
+                      type="text"
+                    >复制</el-button>
+                  </div>
+                </el-form-item>
+                <el-form-item label="路径">
+                  <div class="wrap">
+                    {{ item.path }}
+                    <el-button
+                      @click="copyTextToClipBoard(item.path)"
+                      type="text"
+                    >复制</el-button>
+                  </div>
+                </el-form-item>
+                <el-form-item
+                  label="大小"
+                  v-show="item.size"
+                >
+                  <span v-if="item.size > 1000000000">{{ numberFix(item.size / 1000000000, 2) }} GB</span>
+                  <span v-else-if="item.size > 1000000">{{ numberFix(item.size / 1000000, 2) }} MB</span>
+                  <span v-else-if="item.size > 1000">{{ numberFix(item.size / 1000, 2) }} KB</span>
+                  <span v-else-if="item.size > 0">{{ item.size }} B</span>
+                  <span v-else>无</span>
+                </el-form-item>
+                <el-form-item
+                  label="子文件数"
+                  v-show="item.count"
+                >{{ item.count }}</el-form-item>
+                <el-form-item label="类型">
+                  <el-tooltip
+                    :enterable="false"
+                    placement="top"
+                  >
+                    <div slot="content">{{ item.type }}</div>
+                    <span>{{ item.kind }}</span>
+                  </el-tooltip>
+                </el-form-item>
+                <el-form-item label="创建时间">
+                  <el-date-picker
+                    disabled
+                    type="datetime"
+                    v-model="item.createDate"
+                  ></el-date-picker>
+                </el-form-item>
+                <el-form-item label="更新时间">
+                  <el-date-picker
+                    disabled
+                    type="datetime"
+                    v-model="item.updateDate"
+                  ></el-date-picker>
+                </el-form-item>
+              </el-form>
+            </el-card>
+          </div>
+        </div>
+      </el-drawer>
+    </div>
+    <el-dialog
+      :visible.sync="deleteDialog.show"
+      @close="deleteDialogCloseEvent"
+      @open="deleteDialogOpenEvent"
+      title="提示"
+      width="300px"
+    >
+      <span>是否将文件移到废纸篓?</span>
+      <span
+        class="dialog-footer"
+        slot="footer"
+      >
+        <el-button
+          @click="deleteDialog.show = false"
+          size="mini"
+        >取 消</el-button>
+        <el-button
+          @click="deleteFile(deleteDialog.file)"
+          size="mini"
+          type="primary"
+        >确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -334,6 +362,10 @@ export default {
         ],
         [
           {
+            code: 'copy',
+            name: '复制'
+          },
+          {
             code: 'copyFileName',
             name: '复制文件名'
           },
@@ -341,8 +373,27 @@ export default {
             code: 'copyFilePath',
             name: '复制文件路径'
           }
+        ],
+        [
+          {
+            code: 'delete',
+            name: '删除文件'
+          }
         ]
-      ]
+      ],
+      keyboardEvent: {
+        enter: true,
+        space: true,
+        esc: true,
+        left: true,
+        right: true,
+        c: true,
+        delete: true
+      },
+      deleteDialog: {
+        show: false,
+        file: null
+      }
     }
   },
   computed: mapGetters({
@@ -509,8 +560,43 @@ export default {
       this.footerPosition = height
       utools.setExpendHeight(height + 40)
     },
-    copyToClipBoard(text) {
-      window.writeToClipboard(text)
+    copyTextToClipBoard(text) {
+      window.writeTextToClipboard(text)
+    },
+    copyFileToClipBoard(path) {
+      var extension = Tools.getExtension(path)
+      if (extension === 'png' || extension === 'jpg' || extension === 'jpeg') {
+        window.writeImageToClipboard(path)
+      } else {
+        window.writeFileToClipboard(path)
+      }
+    },
+    deleteFile(file) {
+      window.deleteFile(file.path)
+      this.$refs.xTable.remove(file)
+      this.deleteDialog.show = false
+      this.$message.success('删除成功')
+    },
+    showDeleteDialog() {
+      this.deleteDialog.file = this.$refs.xTable.getCurrentRow()
+      if (this.tableData.length === 0 || this.deleteDialog.file === null) {
+        return
+      }
+      this.deleteDialog.show = true
+    },
+    deleteDialogOpenEvent() {
+      this.keyboardEvent.enter = false
+      this.keyboardEvent.c = false
+      this.keyboardEvent.delete = false
+      this.keyboardEvent.right = false
+      this.keyboardEvent.space = false
+    },
+    deleteDialogCloseEvent() {
+      this.keyboardEvent.enter = true
+      this.keyboardEvent.c = true
+      this.keyboardEvent.delete = true
+      this.keyboardEvent.right = true
+      this.keyboardEvent.space = true
     },
     // 键盘事件
     keyDownEvent(event) {
@@ -518,49 +604,60 @@ export default {
       var keyCode = window.event ? event.keyCode : event.which
       // 回车
       if (keyCode === 13) {
-        // 开启加载中进度条
-        this.loading = true
-        // 执行搜索
-        this.search(this.query)
-        // window.focus()
-        utools.subInputBlur()
+        if (this.keyboardEvent.enter) {
+          // 开启加载中进度条
+          this.loading = true
+          // 执行搜索
+          this.search(this.query)
+          // window.focus()
+          utools.subInputBlur()
+        }
       }
       // 空格键
       else if (keyCode === 32) {
-        if (
-          this.tableData.length === 0 ||
-          this.settingDrawer.open ||
-          this.tipDrawer.open
-        ) {
-          return
-        }
-
-        this.preview.start = new Date().getTime()
-        if (this.settings.data.preview.native) {
-          this.nativePreview(this.$refs.xTable.getCurrentRow().path)
-        } else {
-          this.detailDrawer.open = !this.detailDrawer.open
-        }
-        this.preview.status = !this.preview.status
-        event.stopPropagation()
-      }
-      // ESC 键
-      else if (keyCode === 27) {
-        var isFocused = window.isfocus()
-        if (isFocused) {
+        if (this.keyboardEvent.space) {
           if (
-            this.detailDrawer.open ||
+            this.tableData.length === 0 ||
             this.settingDrawer.open ||
             this.tipDrawer.open
           ) {
-            this.detailDrawer.open = false
-            this.settingDrawer.open = false
-            this.tipDrawer.open = false
-          } else {
-            utools.subInputSelect()
+            return
           }
+
+          this.preview.start = new Date().getTime()
+          if (this.settings.data.preview.native) {
+            this.nativePreview(this.$refs.xTable.getCurrentRow().path)
+          } else {
+            this.detailDrawer.open = !this.detailDrawer.open
+          }
+          this.preview.status = !this.preview.status
           event.stopPropagation()
         }
+      }
+      // ESC 键
+      else if (keyCode === 27) {
+        if (this.keyboardEvent.esc) {
+          if (this.deleteDialog.show) {
+            this.deleteDialog.file = null
+            this.deleteDialog.show = false
+          } else {
+            var isFocused = window.isfocus()
+            if (isFocused) {
+              if (
+                this.detailDrawer.open ||
+                this.settingDrawer.open ||
+                this.tipDrawer.open
+              ) {
+                this.detailDrawer.open = false
+                this.settingDrawer.open = false
+                this.tipDrawer.open = false
+              } else {
+                utools.subInputSelect()
+              }
+            }
+          }
+        }
+        event.stopPropagation()
       }
     },
     keyUpEvent(event) {
@@ -568,17 +665,35 @@ export default {
       var keyCode = window.event ? event.keyCode : event.which
       // 左方向键
       if (keyCode === 37) {
-        if (this.detailDrawer.open) {
-          this.detailDrawer.open = false
-          return
+        if (this.keyboardEvent.left) {
+          if (this.detailDrawer.open) {
+            this.detailDrawer.open = false
+            return
+          }
         }
       }
       // 右方向键
       else if (keyCode === 39) {
-        // 获取当前高亮的结果
-        var row = this.$refs.xTable.getCurrentRow()
-        // 使用默认方式打开
-        window.openDirectly(row.path)
+        if (this.keyboardEvent.right) {
+          // 获取当前高亮的结果
+          var row = this.$refs.xTable.getCurrentRow()
+          // 使用默认方式打开
+          window.openDirectly(row.path)
+        }
+      }
+      // C
+      else if (keyCode === 67) {
+        if (this.keyboardEvent.c) {
+          var row = this.$refs.xTable.getCurrentRow()
+          // 复制文件到剪贴板
+          this.copyFileToClipBoard(row.path)
+        }
+      }
+      // delete
+      else if (keyCode === 46) {
+        if (this.keyboardEvent.delete) {
+          this.showDeleteDialog()
+        }
       }
     },
     // 表格快捷菜单点击事件
@@ -597,11 +712,17 @@ export default {
         case 'openInFinder':
           window.openInFinder(path)
           break
+        case 'copy':
+          this.copyFileToClipBoard(path)
+          break
         case 'copyFilePath':
-          this.copyToClipBoard(path)
+          this.copyTextToClipBoard(path)
           break
         case 'copyFileName':
-          this.copyToClipBoard(name)
+          this.copyTextToClipBoard(name)
+          break
+        case 'delete':
+          this.showDeleteDialog()
           break
       }
     },
@@ -756,6 +877,12 @@ export default {
 }
 </style>
 <style>
+.detail-drawer .el-dialog__wrapper {
+  pointer-events: none;
+}
+.detail-drawer .el-dialog__wrapper .el-drawer.rtl {
+  pointer-events: all;
+}
 .el-drawer.ltr,
 .el-drawer.rtl {
   overflow-y: auto;
