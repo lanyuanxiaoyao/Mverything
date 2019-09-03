@@ -5,7 +5,6 @@ import VXETable from "vxe-table";
 import "vxe-table/lib/index.css";
 import ElementUI from "element-ui";
 import "../theme/index.css";
-
 import store from "./store";
 
 Vue.use(VXETable);
@@ -14,9 +13,7 @@ Vue.use(ElementUI);
 Vue.config.productionTip = false;
 
 Vue.directive("focus", {
-  update: (el, {
-    value
-  }) => {
+  update: (el, { value }) => {
     if (value) {
       el.focus();
     }

@@ -139,8 +139,9 @@
         :modal="false"
         :modal-append-to-body="false"
         :show-close="false"
-        :size="'400px'"
+        :size="'450px'"
         :visible.sync="detailDrawer.open"
+        @close="detailDrawerCloseEvent"
         @open="detailDrawerOpenEvent"
         custom-class="detail-body"
       >
@@ -150,121 +151,148 @@
         >
           <span class="drawer-header">文件详情 Detail</span>
         </div>
+        <!-- <Detail ref="detail" /> -->
         <div id="detail">
-          <div id="detail">
-            <el-card body-style="{padding: 2px}">
-              <el-table
-                :data="item.files"
-                :max-height="400"
-                @row-dblclick="detailFolderTableDbClickEvent"
-                empty-text="文件夹为空"
-                size="mini"
-                stripe
-                v-if="item.preview === 'folder'"
-              >
-                <el-table-column
-                  label="文件名 (双击可直接打开)"
-                  prop="name"
-                ></el-table-column>
-              </el-table>
-              <div
-                style="text-align: center"
-                v-else-if="item.preview === 'picture'"
-              >
-                <img
-                  :src="item.path"
-                  style="max-width: 100%"
-                />
-              </div>
-              <div v-else-if="item.preview === 'text'">
-                <el-alert
-                  show-icon
-                  style="margin-bottom: 5px"
-                  title="仅提供部分文本内容预览"
-                  type="warning"
-                ></el-alert>
-                <el-input
-                  :autosize="{ minRows: 1, maxRows: 20 }"
-                  readonly
-                  resize="none"
-                  type="textarea"
-                  v-model="item.text"
-                ></el-input>
-              </div>
+          <el-card body-style="{padding: 2px}">
+            <el-table
+              :data="item.files"
+              :max-height="400"
+              @row-dblclick="detailFolderTableDbClickEvent"
+              empty-text="文件夹为空"
+              size="mini"
+              stripe
+              v-if="item.preview === 'folder'"
+            >
+              <el-table-column
+                label="文件名 (双击可直接打开)"
+                prop="name"
+              ></el-table-column>
+            </el-table>
+            <div
+              style="text-align: center"
+              v-else-if="item.preview === 'picture'"
+            >
+              <el-image
+                :src="item.path"
+                style="max-width: 100%"
+              ></el-image>
+            </div>
+            <div v-else-if="item.preview === 'text'">
+              <el-alert
+                show-icon
+                style="margin-bottom: 5px"
+                title="仅提供部分文本内容预览"
+                type="warning"
+              ></el-alert>
+              <el-input
+                :autosize="{ minRows: 1, maxRows: 20 }"
+                readonly
+                resize="none"
+                type="textarea"
+                v-model="item.text"
+              ></el-input>
+            </div>
+            <div v-else-if="item.preview === 'video'">
+              <video
+                :src="item.path"
+                controls
+                muted
+                ref="videoPlayer"
+                style="width: 100%"
+              />
+            </div>
+            <div v-else-if="item.preview === 'audio'">
+              <audio
+                :src="item.path"
+                controls
+                ref="audioPlayer"
+                style="width: 100%"
+              />
+            </div>
+            <div
+              style="text-align: center"
+              v-else
+            >
+              <el-image
+                :src="item.thumbnails"
+                @click="openPictureViewer([item.thumbnails])"
+                style="max-width: 100%;margin-bottom: 5px"
+                v-if="item.thumbnails !== ''"
+              ></el-image>
+              <span v-else>暂无预览,</span>
               <span
                 @click="nativePreview(item.path)"
                 style="cursor: pointer"
-                v-else
               >
-                暂无预览, 使用
+                使用
                 <span style="font-weight: bold;padding-right: 3px">quick look</span>查看
               </span>
-            </el-card>
-            <el-card body-style="{padding: 5px}">
-              <el-form
-                :show-message="false"
-                label-position="left"
-                label-width="70px"
-                size="mini"
+            </div>
+          </el-card>
+          <el-card body-style="{padding: 5px}">
+            <el-form
+              :show-message="false"
+              label-position="left"
+              label-width="70px"
+              size="mini"
+            >
+              <el-form-item label="文件名">
+                <div class="wrap">
+                  {{ item.name }}
+                  <el-button
+                    @click="copyTextToClipBoard(item.name)"
+                    type="text"
+                  >复制</el-button>
+                </div>
+              </el-form-item>
+              <el-form-item label="路径">
+                <div class="wrap">
+                  {{ item.path }}
+                  <el-button
+                    @click="copyTextToClipBoard(item.path)"
+                    type="text"
+                  >复制</el-button>
+                </div>
+              </el-form-item>
+              <el-form-item
+                label="大小"
+                v-show="item.size"
               >
-                <el-form-item label="文件名">
-                  <div class="wrap">
-                    {{ item.name }}
-                    <el-button
-                      @click="copyTextToClipBoard(item.name)"
-                      type="text"
-                    >复制</el-button>
-                  </div>
-                </el-form-item>
-                <el-form-item label="路径">
-                  <div class="wrap">
-                    {{ item.path }}
-                    <el-button
-                      @click="copyTextToClipBoard(item.path)"
-                      type="text"
-                    >复制</el-button>
-                  </div>
-                </el-form-item>
-                <el-form-item
-                  label="大小"
-                  v-show="item.size"
+                <span v-if="item.size > 1000000000">{{ numberFix(item.size / 1000000000, 2) }} GB</span>
+                <span v-else-if="item.size > 1000000">{{ numberFix(item.size / 1000000, 2) }} MB</span>
+                <span v-else-if="item.size > 1000">{{ numberFix(item.size / 1000, 2) }} KB</span>
+                <span v-else-if="item.size > 0">{{ item.size }} B</span>
+                <span v-else>无</span>
+              </el-form-item>
+              <el-form-item
+                label="子文件数"
+                v-show="item.count"
+              >{{ item.count }}</el-form-item>
+              <el-form-item label="类型">
+                <el-tooltip
+                  :enterable="false"
+                  placement="top"
                 >
-                  <span v-if="item.size > 1000000000">{{ numberFix(item.size / 1000000000, 2) }} GB</span>
-                  <span v-else-if="item.size > 1000000">{{ numberFix(item.size / 1000000, 2) }} MB</span>
-                  <span v-else-if="item.size > 1000">{{ numberFix(item.size / 1000, 2) }} KB</span>
-                  <span v-else-if="item.size > 0">{{ item.size }} B</span>
-                  <span v-else>无</span>
-                </el-form-item>
-                <el-form-item
-                  label="子文件数"
-                  v-show="item.count"
-                >{{ item.count }}</el-form-item>
-                <el-form-item label="类型">
-                  <el-tooltip
-                    :enterable="false"
-                    placement="top"
-                  >
-                    <div slot="content">{{ item.type }}</div>
-                    <span>{{ item.kind }}</span>
-                  </el-tooltip>
-                </el-form-item>
-                <el-form-item label="创建时间">
-                  <el-date-picker
-                    disabled
-                    type="datetime"
-                    v-model="item.createDate"
-                  ></el-date-picker>
-                </el-form-item>
-                <el-form-item label="更新时间">
-                  <el-date-picker
-                    disabled
-                    type="datetime"
-                    v-model="item.updateDate"
-                  ></el-date-picker>
-                </el-form-item>
-              </el-form>
-            </el-card>
-          </div>
+                  <div slot="content">{{ item.type }}</div>
+                  <span>{{ item.kind }}</span>
+                </el-tooltip>
+              </el-form-item>
+              <el-form-item label="创建时间">
+                <el-date-picker
+                  disabled
+                  type="datetime"
+                  v-model="item.createDate"
+                ></el-date-picker>
+              </el-form-item>
+              <el-form-item label="更新时间">
+                <el-date-picker
+                  disabled
+                  type="datetime"
+                  v-model="item.updateDate"
+                ></el-date-picker>
+              </el-form-item>
+            </el-form>
+          </el-card>
         </div>
       </el-drawer>
     </div>
@@ -305,12 +333,14 @@ import { mapGetters } from 'vuex'
 
 import Tips from './components/Tips'
 import Settings from './components/Setting'
+import Detail from './components/Detail'
 
 export default {
   name: 'finder',
   components: {
     Settings,
-    Tips
+    Tips,
+    Detail
   },
   data() {
     return {
@@ -332,6 +362,30 @@ export default {
         direction: 'rtl'
       },
       item: {},
+      codeMirrorOption: {
+        lineNumbers: true,
+        lineWrapping: true,
+        dragDrop: false,
+        readOnly: 'nocursor'
+      },
+      viewer: {
+        images: []
+      },
+      viewerOptions: {
+        inline: false,
+        button: true,
+        navbar: false,
+        title: true,
+        toolbar: true,
+        tooltip: false,
+        movable: false,
+        zoomable: true,
+        rotatable: true,
+        scalable: true,
+        transition: false,
+        fullscreen: false,
+        keyboard: false
+      },
       tempDir: '',
       homeDir: '/',
       rootDir: '/',
@@ -401,6 +455,9 @@ export default {
   }),
   mounted() {
     utools.onPluginReady(() => {
+      var tempPath = utools.getPath('temp')
+      window.initTempPath(tempPath)
+
       console.log('onPluginReady')
       var newSettings = Tools.databaseUpdate(this.settings)
       this.$store.commit('updateSettings', newSettings)
@@ -535,6 +592,7 @@ export default {
             this.sort.field,
             this.sort.type
           )
+
           // 加载搜索结果
           this.$refs.xTable.loadData(this.tableData)
           // 设置第一条结果的高亮
@@ -727,7 +785,9 @@ export default {
       }
     },
     currentChangeEvent({ row }) {
-      this.loadData(row)
+      if (this.detailDrawer.open) {
+        this.loadData(row)
+      }
     },
     sortChangeEvent(value) {
       this.loading = true
@@ -791,6 +851,16 @@ export default {
         this.settings.data.pictureExtension.indexOf(extension) > -1
       ) {
         this.item.preview = 'picture'
+      } else if (
+        extension &&
+        this.settings.data.videoExtension.indexOf(extension) > -1
+      ) {
+        this.item.preview = 'video'
+      } else if (
+        extension &&
+        this.settings.data.audioExtension.indexOf(extension) > -1
+      ) {
+        this.item.preview = 'audio'
       }
 
       if (
@@ -798,8 +868,15 @@ export default {
         (this.item.preview && this.item.preview === 'text')
       ) {
         window.readTextFile(this.item.path, data => {
+          this.item.text = '加载中...'
           var encode = CharDetect.detect(data)
           this.item.text = IconvLite.decode(data, encode)
+        })
+      }
+
+      if (!this.item.preview) {
+        window.generatePreviewPicture(this.item.name, this.item.path, path => {
+          this.item.thumbnails = path
         })
       }
     },
@@ -812,6 +889,15 @@ export default {
     detailDrawerOpenEvent() {
       var item = this.$refs.xTable.getCurrentRow()
       this.loadData(item)
+      // this.$refs.detail.loadData(item)
+    },
+    detailDrawerCloseEvent() {
+      if (this.$refs.videoPlayer) {
+        this.$refs.videoPlayer.pause()
+      }
+      if (this.$refs.audioPlayer) {
+        this.$refs.audioPlayer.pause()
+      }
     },
     test() {
       console.log('hello')

@@ -47,6 +47,7 @@ export default {
         createDate: item.kMDItemFSCreationDate,
         updateDate: item.kMDItemFSContentChangeDate,
         text: "",
+        thumbnails: "",
         preview: "",
         files: []
       });

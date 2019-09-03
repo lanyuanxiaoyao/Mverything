@@ -20,7 +20,9 @@ const store = new Vuex.Store({
         },
         keyList: [],
         fileExtension: "txt,md,markdown,json,xml,java,py,c,cpp,html,css,vue",
-        pictureExtension: "png,jpg,jpeg,bmp,svg,ico"
+        pictureExtension: "png,jpg,jpeg,bmp,svg,ico",
+        videoExtension: "mp4,flv",
+        audioExtension: "mp3,ogg,wav"
       },
       _rev: ""
     }

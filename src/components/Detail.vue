@@ -136,7 +136,19 @@ export default {
         return
       }
       var extension = Tools.getExtension(this.item.name)
-      this.item.preview = Constant.typeMap()[extension]
+      console.log(extension)
+      if (
+        extension &&
+        this.settings.data.fileExtension.indexOf(extension) > -1
+      ) {
+        this.item.preview = 'text'
+      } else if (
+        extension &&
+        this.settings.data.pictureExtension.indexOf(extension) > -1
+      ) {
+        this.item.preview = 'picture'
+      }
+
       if (
         this.item.type === 'public.plain-text' ||
         (this.item.preview && this.item.preview === 'text')

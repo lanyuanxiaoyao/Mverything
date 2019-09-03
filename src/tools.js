@@ -25,16 +25,30 @@ export default {
   },
   databaseUpdate(settings) {
     console.log("database update before:", settings);
-    if (!settings["data"]["databaseVersion"] || settings["data"]["databaseVersion"] < 1) {
+    if (
+      !settings["data"]["databaseVersion"] ||
+      settings["data"]["databaseVersion"] < 1
+    ) {
       settings["data"]["databaseVersion"] = 1;
       settings["data"]["fileExtension"] = "txt,java,py,c,cpp,html,css,vue";
       settings["data"]["pictureExtension"] = "png,jpg,jpeg,bmp,svg,ico";
     }
-    if (!settings["data"]["databaseVersion"] || settings["data"]["databaseVersion"] < 2) {
+    if (
+      !settings["data"]["databaseVersion"] ||
+      settings["data"]["databaseVersion"] < 2
+    ) {
       settings["data"]["databaseVersion"] = 2;
       settings["data"]["preview"] = {
         native: false
-      }
+      };
+    }
+    if (
+      !settings["data"]["databaseVersion"] ||
+      settings["data"]["databaseVersion"] < 3
+    ) {
+      settings["data"]["databaseVersion"] = 3;
+      settings["data"]["videoExtension"] = "mp4,flv";
+      settings["data"]["audioExtension"] = "mp3,ogg,wav";
     }
     console.log("database update finish:", settings);
     return settings;

@@ -100,7 +100,7 @@
           ></i>
           <div>
             很多文本文件(如代码)在 macOS 中并不会被识别为同一个类型, 基于此插件决定把后缀名交由用户决定, 将自己常用的文本文件定义为在这里, 即可对其进行预览, 图片亦是如此
-            <b>(注: 图片格式需谷歌浏览器图片标签原生支持, 否则无法显示)</b>.
+            <b>(注: 图片, 音频和视频格式需谷歌浏览器标签原生支持, 否则无法显示)</b>.
           </div>
         </el-popover>
       </div>
@@ -119,6 +119,18 @@
           <el-input
             placeholder="图片文件后缀名"
             v-model="settings.data.pictureExtension"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="视频文件后缀名">
+          <el-input
+            placeholder="视频文件后缀名"
+            v-model="settings.data.videoExtension"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="音频文件后缀名">
+          <el-input
+            placeholder="音频文件后缀名"
+            v-model="settings.data.audioExtension"
           ></el-input>
         </el-form-item>
       </el-form>

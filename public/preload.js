@@ -290,6 +290,27 @@ var r=n(20),i=n(21),o=n(8);function s(){return u.TYPED_ARRAY_SUPPORT?2147483647:
     })
   }
 
+  const tempPath = '.'
+  window.initTempPath = base => {
+    this.tempPath = `${base}utools-find`
+    node_child.execSync(`rm -rf ${this.tempPath}`)
+    node_child.execSync(`mkdir -p ${this.tempPath}`)
+  }
+
+  window.generatePreviewPicture = (name, path, callback) => {
+    node_child.exec(`qlmanage -t -s 1024 "${path}" -o ${this.tempPath}`, (error, stdout, stderr) => {
+      if (error) {
+        callback('')
+      }
+      var filePath = `${this.tempPath}/${name}.png`
+      if (fs.existsSync(filePath)) {
+        callback(filePath)
+      } else {
+        callback('')
+      }
+    })
+  }
+
   window.readFileList = (path, callback) => {
     var files = fs.readdirSync(path)
     var fileList = []
