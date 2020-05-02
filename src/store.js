@@ -2,7 +2,6 @@
 /* eslint-disable no-undef */
 import Vue from "vue";
 import Vuex from "vuex";
-import Tools from "./tools";
 
 Vue.use(Vuex);
 

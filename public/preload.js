@@ -207,9 +207,9 @@ var r=n(20),i=n(21),o=n(8);function s(){return u.TYPED_ARRAY_SUPPORT?2147483647:
 
   const { shell, clipboard, remote, nativeImage } = require("electron");
 
-  window.focus = () => remote.getCurrentWebContents().focus()
-  window.unfocus = () => remote.getCurrentWindow().focus()
-  window.isfocus = () => remote.getCurrentWebContents().isFocused()
+  window.focus = () => utools.subInputFocus()
+  window.unfocus = () => utools.subInputBlur()
+  window.isfocus = false
 
   window.find = (name, onlyName, dir, callback) => {
     new Promise((resolve, reject) => {

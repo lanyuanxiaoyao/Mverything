@@ -27,8 +27,8 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="是否使用原生预览">
-          <el-switch v-model="settings.data.preview.native"></el-switch>
+        <el-form-item label="是否使用原生预览 (暂不可用)">
+          <el-switch disabled v-model="settings.data.preview.native"></el-switch>
         </el-form-item>
       </el-form>
     </el-card>

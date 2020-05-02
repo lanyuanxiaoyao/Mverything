@@ -219,14 +219,14 @@
                 style="max-width: 100%;margin-bottom: 5px"
                 v-if="item.thumbnails !== ''"
               ></el-image>
-              <span v-else>暂无预览,</span>
-              <span
+              <span v-else>暂无预览</span>
+              <!-- <span
                 @click="nativePreview(item.path)"
                 style="cursor: pointer"
               >
                 使用
                 <span style="font-weight: bold;padding-right: 3px">quick look</span>查看
-              </span>
+              </span> -->
             </div>
           </el-card>
           <el-card body-style="{padding: 5px}">
@@ -463,6 +463,7 @@ export default {
       this.$store.commit('updateSettings', newSettings)
     })
     utools.onPluginEnter(({ code, type, payload }) => {
+      window.isfocus = true
       // 初始化
       this.initial(code, type, payload)
       utools.setSubInput(({ text }) => {
@@ -683,11 +684,13 @@ export default {
           }
 
           this.preview.start = new Date().getTime()
-          if (this.settings.data.preview.native) {
-            this.nativePreview(this.$refs.xTable.getCurrentRow().path)
-          } else {
-            this.detailDrawer.open = !this.detailDrawer.open
-          }
+          // utools 1.0.0-beta 适配, remote 模块不可用, 取消原生预览
+          // if (this.settings.data.preview.native) {
+          //   this.nativePreview(this.$refs.xTable.getCurrentRow().path)
+          // } else {
+          //   this.detailDrawer.open = !this.detailDrawer.open
+          // }
+          this.detailDrawer.open = !this.detailDrawer.open
           this.preview.status = !this.preview.status
           event.stopPropagation()
         }
@@ -699,7 +702,7 @@ export default {
             this.deleteDialog.file = null
             this.deleteDialog.show = false
           } else {
-            var isFocused = window.isfocus()
+            var isFocused = window.isfocus
             if (isFocused) {
               if (
                 this.detailDrawer.open ||

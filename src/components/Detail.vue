@@ -37,7 +37,7 @@
           ></el-input>
         </div>
         <span v-else>
-          <el-button type="text">暂无预览, 使用 quick look 查看</el-button>
+          <el-button disabled type="text">暂无预览</el-button>
         </span>
       </el-card>
       <el-card body-style="{padding: 5px}">
