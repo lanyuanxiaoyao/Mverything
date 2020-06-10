@@ -620,14 +620,14 @@ export default {
       utools.setExpendHeight(height + 40)
     },
     copyTextToClipBoard(text) {
-      window.writeTextToClipboard(text)
+      utools.copyText(text)
     },
     copyFileToClipBoard(path) {
       var extension = Tools.getExtension(path)
       if (extension === 'png' || extension === 'jpg' || extension === 'jpeg') {
-        window.writeImageToClipboard(path)
+        utools.copyImage(path)
       } else {
-        window.writeFileToClipboard(path)
+        utools.copyFile(path)
       }
     },
     deleteFile(file) {
@@ -739,7 +739,7 @@ export default {
           // 获取当前高亮的结果
           var row = this.$refs.xTable.getCurrentRow()
           // 使用默认方式打开
-          window.openDirectly(row.path)
+          utools.shellOpenPath(row.path)
         }
       }
       // C
@@ -768,10 +768,10 @@ export default {
           this.detailDrawer.open = true
           break
         case 'open':
-          window.openDirectly(path)
+          utools.shellOpenPath(path)
           break
         case 'openInFinder':
-          window.openInFinder(path)
+          utools.shellShowItemInFolder(path)
           break
         case 'copy':
           this.copyFileToClipBoard(path)
@@ -814,7 +814,7 @@ export default {
     // 行双击事件
     cellDClickEvent({ row }) {
       // 直接打开
-      window.openDirectly(row.path)
+      utools.shellOpenPath(row.path)
     },
     // 抽屉关闭事件
     settingDrawerCloseEvent(done) {
@@ -887,7 +887,7 @@ export default {
       return number.toFixed(fixed)
     },
     detailFolderTableDbClickEvent(row, column, event) {
-      window.openDirectly(this.item.path + '/' + row.name)
+      utools.shellOpenPath(this.item.path + '/' + row.name)
     },
     detailDrawerOpenEvent() {
       var item = this.$refs.xTable.getCurrentRow()

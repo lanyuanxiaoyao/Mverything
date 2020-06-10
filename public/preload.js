@@ -205,7 +205,7 @@ var r=n(20),i=n(21),o=n(8);function s(){return u.TYPED_ARRAY_SUPPORT?2147483647:
   }
   spotlight.support = true
 
-  const { shell, clipboard, remote, nativeImage } = require("electron");
+  const { shell, remote } = require("electron");
 
   window.focus = () => utools.subInputFocus()
   window.unfocus = () => utools.subInputBlur()
@@ -260,22 +260,7 @@ var r=n(20),i=n(21),o=n(8);function s(){return u.TYPED_ARRAY_SUPPORT?2147483647:
     });
   }
 
-  window.openInFinder = path => shell.showItemInFolder(path);
-  window.openDirectly = path => shell.openItem(path);
-  window.openExternal = path => shell.openExternal(path);
   window.deleteFile = path => shell.moveItemToTrash(path);
-  window.writeTextToClipboard = text => {
-    clipboard.writeText(text);
-    utools.showNotification('复制成功: ' + text, null, true)
-  }
-  window.writeImageToClipboard = path => {
-    clipboard.writeImage(nativeImage.createFromPath(path))
-    utools.showNotification('复制成功: ' + path, null, true)
-  }
-  window.writeFileToClipboard = path => {
-    node_child.execSync(`osascript -e 'tell app "Finder" to set the clipboard to ( POSIX file "${path}" )'`)
-    utools.showNotification('复制成功: ' + path, null, true)
-  }
 
   const fs = require('fs')
 

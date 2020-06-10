@@ -3,7 +3,7 @@
   "author": "lanyuanxiaoyao",
   "homepage": "http://lanyuanxiaoyao.com",
   "description": "Mac 上的 Everything",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "logo": "logo.png",
   "main": "index.html",
   "preload": "preload.js",

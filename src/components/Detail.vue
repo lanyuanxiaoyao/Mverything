@@ -160,13 +160,13 @@ export default {
       }
     },
     copyToClipBoard(text) {
-      window.writeToClipboard(text)
+      utools.copyText(text)
     },
     numberFix(number, fixed) {
       return number.toFixed(fixed)
     },
     detailFolderTableDbClickEvent(row, column, event) {
-      window.openDirectly(this.item.path + '/' + row.name)
+      utools.shellOpenPath(this.item.path + '/' + row.name)
     }
   }
 }
